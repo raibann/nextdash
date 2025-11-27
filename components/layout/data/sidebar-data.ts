@@ -1,7 +1,7 @@
 import {
   LayoutDashboard,
   Monitor,
-  ListTodo,
+  // ListTodo,
   HelpCircle,
   Bell,
   Palette,
@@ -9,10 +9,11 @@ import {
   Wrench,
   UserCog,
   Users,
-  MessagesSquare,
+  // MessagesSquare,
   AudioWaveform,
   Command,
   GalleryVerticalEnd,
+  ShieldUser,
 } from 'lucide-react'
 
 import { type SidebarData } from '../types'
@@ -49,27 +50,22 @@ export const sidebarData: SidebarData = {
           url: '/',
           icon: LayoutDashboard,
         },
-        {
-          title: 'Tasks',
-          url: '/tasks',
-          icon: ListTodo,
-        },
+        // {
+        //   title: 'Tasks',
+        //   url: '/tasks',
+        //   icon: ListTodo,
+        // },
         // {
         //   title: 'Apps',
         //   url: '/apps',
         //   icon: Package,
         // },
-        {
-          title: 'Chats',
-          url: '/chats',
-          badge: '3',
-          icon: MessagesSquare,
-        },
-        {
-          title: 'Users',
-          url: '/users',
-          icon: Users,
-        },
+        // {
+        //   title: 'Chats',
+        //   url: '/chats',
+        //   badge: '3',
+        //   icon: MessagesSquare,
+        // },
         // {
         //   title: 'Secured by Clerk',
         //   icon: ClerkLogo,
@@ -88,6 +84,21 @@ export const sidebarData: SidebarData = {
         //     },
         //   ],
         // },
+      ],
+    },
+    {
+      title: 'Users Management',
+      items: [
+        {
+          title: 'Users',
+          url: '/users',
+          icon: Users,
+        },
+        {
+          title: 'Roles & Permissions',
+          url: '/roles-permissions',
+          icon: ShieldUser,
+        },
       ],
     },
     // {

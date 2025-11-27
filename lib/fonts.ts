@@ -16,4 +16,7 @@
  *      --font-roboto: 'Roboto', var(--font-sans);
  *   }
  */
-export const fonts = ["inter", "manrope", "system"] as const;
+
+export const fonts = ['inter', 'manrope', 'katumruypro', 'system'] as const
+
+export type Font = (typeof fonts)[number]
