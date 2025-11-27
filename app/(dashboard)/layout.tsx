@@ -1,10 +1,16 @@
-'use client'
 import { AuthenticatedLayout } from '@/components/layout/authenticated-layout'
 import { PropsWithChildren } from 'react'
-import { ClientOnly } from '../../components/client-only'
+import { userAuthed } from '@/server/actions/user-actions'
+import { redirect } from 'next/navigation'
 
-const DashboardLayout = ({ children }: PropsWithChildren) => {
-  return ClientOnly({ children: AuthenticatedLayout({ children }) })
+const DashboardLayout = async ({ children }: PropsWithChildren) => {
+  const authed = await userAuthed()
+
+  if (!authed) {
+    redirect('/')
+  }
+
+  return AuthenticatedLayout({ children })
 }
 
 export default DashboardLayout

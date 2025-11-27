@@ -1,20 +1,26 @@
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "@/db";
-import { admin } from "better-auth/plugins";
-import { nextCookies } from "better-auth/next-js";
+import { betterAuth } from 'better-auth'
+import { drizzleAdapter } from 'better-auth/adapters/drizzle'
+import { db } from '@/db'
+import { admin, openAPI } from 'better-auth/plugins'
+import { nextCookies } from 'better-auth/next-js'
 
 export const auth = betterAuth({
   /**
    * The Drizzle adapter connects Better-Auth to your database using Drizzle ORM.
    */
   database: drizzleAdapter(db, {
-    provider: "pg",
+    provider: 'pg',
   }),
   /**
    * Plugins extend the functionality of Better-Auth. The admin plugin provides an admin dashboard
    */
-  plugins: [admin(), nextCookies()],
+  plugins: [
+    admin({ defaultRole: 'user' }),
+    nextCookies(),
+    openAPI({
+      disableDefaultReference: process.env.NODE_ENV !== 'development',
+    }),
+  ],
   /**
    * Database joins is useful when Better-Auth needs to fetch related data from multiple tables in a single query.
    * Endpoints like /get-session, /get-full-organization and many others benefit greatly from this feature,
@@ -23,9 +29,7 @@ export const auth = betterAuth({
   experimental: { joins: true },
   emailAndPassword: {
     enabled: true,
-    // async sendResetPassword(data, request) {
-    //   // Send an email to the user with a link to reset their password
-    // },
+    requireEmailVerification: false,
   },
   socialProviders: {
     google: {
@@ -37,4 +41,6 @@ export const auth = betterAuth({
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
     },
   },
-});
+})
+
+export type Session = typeof auth.$Infer.Session

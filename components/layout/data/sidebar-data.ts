@@ -1,30 +1,21 @@
 import {
-  Construction,
   LayoutDashboard,
   Monitor,
-  Bug,
   ListTodo,
-  FileX,
   HelpCircle,
-  Lock,
   Bell,
-  Package,
   Palette,
-  ServerOff,
   Settings,
   Wrench,
   UserCog,
-  UserX,
   Users,
   MessagesSquare,
-  ShieldCheck,
   AudioWaveform,
   Command,
   GalleryVerticalEnd,
 } from 'lucide-react'
 
 import { type SidebarData } from '../types'
-import { ClerkLogo } from '@/components/assets/clerk-logo'
 
 export const sidebarData: SidebarData = {
   user: {

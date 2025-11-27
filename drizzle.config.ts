@@ -1,27 +1,26 @@
-import { defineConfig } from "drizzle-kit";
+import { defineConfig } from 'drizzle-kit'
 
 export default defineConfig({
-  out: "./drizzle",
-  dialect: "postgresql",
-  schema: "./db/schema",
-  //   driver: "pglite",
+  out: './drizzle',
+  dialect: 'postgresql',
+  schema: './db/schema/index.ts',
   dbCredentials: {
     url: process.env.DATABASE_URL as string,
   },
-  extensionsFilters: ["postgis"],
-  schemaFilter: "public",
-  tablesFilter: "*",
+  extensionsFilters: ['postgis'],
+  schemaFilter: 'public',
+  tablesFilter: '*',
   introspect: {
-    casing: "camel",
+    casing: 'camel',
   },
   migrations: {
-    prefix: "timestamp",
-    table: "__drizzle_migrations__",
-    schema: "public",
+    prefix: 'timestamp',
+    table: '__drizzle_migrations__',
+    schema: 'public',
   },
   entities: {
     roles: {
-      provider: "",
+      provider: '',
       exclude: [],
       include: [],
     },
@@ -29,4 +28,4 @@ export default defineConfig({
   breakpoints: true,
   strict: true,
   verbose: true,
-});
+})
