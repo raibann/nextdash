@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   // description: 'Sign In page',
 }
 
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
+type SearchParams = Promise<{ [key: string]: string | undefined }>
 
 const SignInPage = async (props: { searchParams: SearchParams }) => {
   const searchParams = await props.searchParams

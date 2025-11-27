@@ -32,11 +32,7 @@ const formSchema = z.object({
 
 type FormSchemaType = z.infer<typeof formSchema>
 
-export default function SignInForm({
-  query,
-}: {
-  query: string | string[] | undefined
-}) {
+export default function SignInForm({ query }: { query?: string }) {
   // state
   const [showPassword, setShowPassword] = useState(false)
 
@@ -66,7 +62,7 @@ export default function SignInForm({
 
     if (res.data != null) {
       toast.success('Successfully signed in!')
-      redirect(query ? query : '/')
+      redirect(!!query ? query : '/')
     }
   }
 
