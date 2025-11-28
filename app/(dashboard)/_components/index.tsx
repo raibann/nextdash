@@ -17,6 +17,7 @@ import { ThemeSwitch } from '@/components/theme-switch'
 import { Analytics } from './analytics'
 import { Overview } from './overview'
 import { RecentSales } from './recent-sales'
+import LanguageSwitch from '@/components/language-switch'
 
 export default function Dashboard() {
   return (
@@ -26,6 +27,7 @@ export default function Dashboard() {
         <TopNav links={topNav} />
         <div className='ms-auto flex items-center space-x-4'>
           <Search />
+          <LanguageSwitch />
           <ThemeSwitch />
           <ConfigDrawer />
           <ProfileDropdown />
@@ -195,13 +197,13 @@ export default function Dashboard() {
 const topNav = [
   {
     title: 'Overview',
-    href: 'dashboard/overview',
+    href: '/',
     isActive: true,
     disabled: false,
   },
   {
     title: 'Customers',
-    href: 'dashboard/customers',
+    href: 'customer',
     isActive: false,
     disabled: true,
   },

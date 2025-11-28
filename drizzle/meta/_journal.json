@@ -15,6 +15,34 @@
       "when": 1764059757185,
       "tag": "20251125083557_stale_paibok",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1764303082809,
+      "tag": "20251128041122_good_wraith",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1764303101229,
+      "tag": "20251128041141_bored_puff_adder",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1764304940276,
+      "tag": "20251128044220_colossal_malcolm_colcord",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1764306518304,
+      "tag": "20251128050838_modify_permission-field",
+      "breakpoints": true
     }
   ]
 }

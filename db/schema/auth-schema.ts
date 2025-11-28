@@ -1,6 +1,9 @@
 import { relations } from 'drizzle-orm'
 import { pgTable, text, timestamp, boolean, index } from 'drizzle-orm/pg-core'
 
+//
+// USER TABLE
+//
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
@@ -17,6 +20,9 @@ export const user = pgTable('user', {
   banExpires: timestamp('ban_expires'),
 })
 
+//
+// SESSION TABLE
+//
 export const session = pgTable(
   'session',
   {
@@ -37,6 +43,9 @@ export const session = pgTable(
   (table) => [index('session_userId_idx').on(table.userId)]
 )
 
+//
+// ACCOUNT TABLE
+//
 export const account = pgTable(
   'account',
   {
@@ -61,6 +70,9 @@ export const account = pgTable(
   (table) => [index('account_userId_idx').on(table.userId)]
 )
 
+//
+// VERIFICATION TABLE
+//
 export const verification = pgTable(
   'verification',
   {
@@ -77,6 +89,8 @@ export const verification = pgTable(
   (table) => [index('verification_identifier_idx').on(table.identifier)]
 )
 
+//
+// RELATIONS
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),

@@ -1,3 +1,4 @@
+'use client'
 import { Menu } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -8,17 +9,19 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import Link from 'next/link'
+import { checkIsActiveByPath } from '@/lib/validation'
+import { useLocation } from '@/hooks/use-location'
 
 type TopNavProps = React.HTMLAttributes<HTMLElement> & {
   links: {
     title: string
     href: string
-    isActive: boolean
     disabled?: boolean
   }[]
 }
 
 export function TopNav({ className, links, ...props }: TopNavProps) {
+  const currHref = useLocation({ select: (location) => location.href })
   return (
     <>
       <div className='lg:hidden'>
@@ -29,20 +32,23 @@ export function TopNav({ className, links, ...props }: TopNavProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent side='bottom' align='start'>
-            {links.map(({ title, href, isActive, disabled }) => (
-              <DropdownMenuItem key={`${title}-${href}`} asChild>
-                <Link
-                  href={href}
-                  className={cn(
-                    !isActive ? 'text-muted-foreground' : '',
-                    'data-[link=true]:pointer-events-none data-[link=true]:opacity-50 data-[link=true]:cursor-not-allowed'
-                  )}
-                  data-link={disabled}
-                >
-                  {title}
-                </Link>
-              </DropdownMenuItem>
-            ))}
+            {links.map(({ title, href, disabled }) => {
+              const isActive = checkIsActiveByPath(currHref, href)
+              return (
+                <DropdownMenuItem key={`${title}-${href}`} asChild>
+                  <Link
+                    href={href}
+                    className={cn(
+                      !isActive ? 'text-muted-foreground' : '',
+                      'data-[link=true]:pointer-events-none data-[link=true]:opacity-50 data-[link=true]:cursor-not-allowed'
+                    )}
+                    data-link={disabled}
+                  >
+                    {title}
+                  </Link>
+                </DropdownMenuItem>
+              )
+            })}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -54,19 +60,22 @@ export function TopNav({ className, links, ...props }: TopNavProps) {
         )}
         {...props}
       >
-        {links.map(({ title, href, isActive, disabled }) => (
-          <Link
-            key={`${title}-${href}`}
-            href={href}
-            data-link={disabled}
-            className={cn(
-              `hover:text-primary text-sm font-medium transition-colors ${isActive ? '' : 'text-muted-foreground'}`,
-              'data-[link=true]:pointer-events-none data-[link=true]:opacity-50 data-[link=true]:cursor-not-allowed'
-            )}
-          >
-            {title}
-          </Link>
-        ))}
+        {links.map(({ title, href, disabled }) => {
+          const isActive = checkIsActiveByPath(currHref, href)
+          return (
+            <Link
+              key={`${title}-${href}`}
+              href={href}
+              data-link={disabled}
+              className={cn(
+                `hover:text-primary text-sm font-medium transition-colors ${isActive ? '' : 'text-muted-foreground'}`,
+                'data-[link=true]:pointer-events-none data-[link=true]:opacity-50 data-[link=true]:cursor-not-allowed'
+              )}
+            >
+              {title}
+            </Link>
+          )
+        })}
       </nav>
     </>
   )
