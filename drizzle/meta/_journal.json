@@ -43,6 +43,13 @@
       "when": 1764306518304,
       "tag": "20251128050838_modify_permission-field",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1764318354072,
+      "tag": "20251128082554_add_permission-field",
+      "breakpoints": true
     }
   ]
 }

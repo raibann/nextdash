@@ -1,4 +1,10 @@
-import { pgTable, text, timestamp, primaryKey } from 'drizzle-orm/pg-core'
+import {
+  pgTable,
+  text,
+  timestamp,
+  primaryKey,
+  varchar,
+} from 'drizzle-orm/pg-core'
 import { user } from './auth-schema' // your existing Better-Auth user table
 import { relations } from 'drizzle-orm'
 
@@ -23,6 +29,7 @@ export const permission = pgTable('permission', {
   id: text('id').primaryKey(), // example: "user.create", "post.update"
   desc: text('desc'),
   name: text('name').notNull(),
+  slug: varchar('slug').notNull().unique(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')
     .$onUpdate(() => /* @__PURE__ */ new Date())

@@ -2,11 +2,10 @@ import { z } from 'zod'
 
 // We're keeping a simple non-relational schema here.
 // IRL, you will have a schema for your data models.
-export const roleSchema = z.object({
-  id: z.string(),
+export const permissionSchema = z.object({
+  id: z.number(),
   name: z.string(),
   desc: z.string().optional(),
-  icon: z.string().optional(),
 })
 
-export type Role = z.infer<typeof roleSchema>
+export type Permission = z.infer<typeof permissionSchema>

@@ -1,8 +1,7 @@
 import { type ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DataTableColumnHeader } from '@/components/data-table'
-import { RoleTableRowActions } from './roles-table-row-actions'
-import { DynamicIcon, IconName } from 'lucide-react/dynamic'
+import { DataTableRowActions } from './data-table-row-actions'
 import {
   Tooltip,
   TooltipContent,
@@ -10,7 +9,7 @@ import {
 } from '@/components/ui/tooltip'
 import ClipboardButton from '@/components/clipboard-btn'
 
-export const rolesColumns: ColumnDef<RolePermRes.Role>[] = [
+export const permissionColumns: ColumnDef<RolePermRes.Permission>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -66,17 +65,23 @@ export const rolesColumns: ColumnDef<RolePermRes.Role>[] = [
     ),
     meta: { className: 'ps-1', tdClassName: 'ps-4' },
     cell: ({ row }) => {
-      const icon = row.original.icon
+      return <span className='text-sm capitalize'>{row.getValue('name')}</span>
+    },
+  },
+  {
+    accessorKey: 'slug',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Slug' />
+    ),
+    meta: { className: 'ps-1', tdClassName: 'ps-4' },
+    cell: ({ row }) => {
       return (
-        <div className='flex space-x-2'>
-          {icon && (
-            <DynamicIcon
-              className='h-4 w-4 shrink-0'
-              name={icon as IconName}
-              aria-hidden='true'
-            />
-          )}
-          <span className='text-sm capitalize'>{row.getValue('name')}</span>
+        <div className='flex items-center space-x-2 group'>
+          <span className='text-sm capitalize'>{row.getValue('slug')}</span>
+          <ClipboardButton
+            text={row.getValue('slug')}
+            className='hidden group-hover:block transition-all duration-300 ease-in-out'
+          />
         </div>
       )
     },
@@ -137,6 +142,6 @@ export const rolesColumns: ColumnDef<RolePermRes.Role>[] = [
   // },
   {
     id: 'actions',
-    cell: ({ row }) => <RoleTableRowActions row={row} />,
+    cell: ({ row }) => <DataTableRowActions row={row} />,
   },
 ]

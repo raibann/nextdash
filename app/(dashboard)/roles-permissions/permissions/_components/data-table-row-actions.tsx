@@ -6,8 +6,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuSub,
@@ -15,8 +13,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { labels } from '../_data/data'
-import { roleSchema } from '../_data/schema'
+import { permissionSchema } from '../_data/schema'
 // import { useTasks } from '../../tasks/_components/tasks-provider'
 
 type DataTableRowActionsProps<TData> = {
@@ -26,7 +23,7 @@ type DataTableRowActionsProps<TData> = {
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
-  const role = roleSchema.parse(row.original)
+  const permission = permissionSchema.parse(row.original)
 
   // const { setOpen, setCurrentRow } = useTasks()
 

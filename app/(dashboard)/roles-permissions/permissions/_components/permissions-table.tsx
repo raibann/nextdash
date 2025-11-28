@@ -23,16 +23,16 @@ import {
   flexRender,
 } from '@tanstack/react-table'
 import { useEffect, useState } from 'react'
-import { RoleTableBulkActions } from './roles-table-bulk-actions'
-import { rolesColumns as columns } from './roles-columns'
+import { DataTableBulkActions } from './data-table-bulk-actions'
+import { permissionColumns as columns } from './permissions-columns'
 
 type DataTableProps = {
-  data: RolePermRes.Role[]
+  data: RolePermRes.Permission[]
   search: Record<string, unknown>
   navigate: NavigateFn
 }
 
-const RolesTable = ({
+const PermissionTable = ({
   data,
   search = {},
   navigate = () => {},
@@ -56,9 +56,9 @@ const RolesTable = ({
     globalFilter: { enabled: false },
     columnFilters: [
       // username per-column text filter
-      { columnId: 'username', searchKey: 'username', type: 'string' },
-      { columnId: 'status', searchKey: 'status', type: 'array' },
-      { columnId: 'role', searchKey: 'role', type: 'array' },
+      // { columnId: 'username', searchKey: 'username', type: 'string' },
+      // { columnId: 'status', searchKey: 'status', type: 'array' },
+      // { columnId: 'role', searchKey: 'role', type: 'array' },
     ],
   })
   // eslint-disable-next-line react-hooks/incompatible-library
@@ -98,7 +98,7 @@ const RolesTable = ({
     >
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Filter roles...'
+        searchPlaceholder='Filter Permission...'
         searchKey='name'
         filters={[]}
       />
@@ -169,9 +169,9 @@ const RolesTable = ({
         </Table>
       </div>
       <DataTablePagination table={table} className='mt-auto' />
-      <RoleTableBulkActions table={table} />
+      <DataTableBulkActions table={table} />
     </div>
   )
 }
 
-export default RolesTable
+export default PermissionTable
