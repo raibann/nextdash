@@ -45,10 +45,10 @@ export function RoleTableRowActions({ row }: RoleTableRowActionsProps) {
           </DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem
-        // onClick={() => {
-        //   setCurrentRow(role)
-        //   setOpen('update')
-        // }}
+          onClick={() => {
+            setCurrentRow(role)
+            setOpen('permission')
+          }}
         >
           Permission{' '}
           <DropdownMenuShortcut>

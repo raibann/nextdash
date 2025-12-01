@@ -37,14 +37,14 @@ type RolesMutateDrawerProps = {
   currentRow?: RolePermRes.Role
 }
 
-export const roleFormSchema = z.object({
+const formSchema = z.object({
   id: z.number().optional(),
   name: z.string().min(1, 'Name is required'),
   desc: z.string().optional(),
   icon: z.string().optional(),
 })
 
-type RoleForm = z.infer<typeof roleFormSchema>
+type FormSchema = z.infer<typeof formSchema>
 
 export function RolesMutateDrawer({
   open,
@@ -53,8 +53,8 @@ export function RolesMutateDrawer({
 }: RolesMutateDrawerProps) {
   const isUpdate = !!currentRow
 
-  const form = useForm<RoleForm>({
-    resolver: zodResolver(roleFormSchema),
+  const form = useForm<FormSchema>({
+    resolver: zodResolver(formSchema),
     defaultValues: currentRow ?? {
       id: undefined,
       name: '',
@@ -63,7 +63,7 @@ export function RolesMutateDrawer({
     },
   })
 
-  const onSubmit = (data: RoleForm) => {
+  const onSubmit = (data: FormSchema) => {
     onOpenChange(false)
     form.reset()
     showSubmittedData(data)

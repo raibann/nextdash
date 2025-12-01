@@ -50,6 +50,20 @@
       "when": 1764318354072,
       "tag": "20251128082554_add_permission-field",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1764576504213,
+      "tag": "20251201080824_add_page",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1764576668828,
+      "tag": "20251201081108_update_relation_page",
+      "breakpoints": true
     }
   ]
 }

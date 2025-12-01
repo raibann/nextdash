@@ -3,6 +3,7 @@ import { showSubmittedData } from '@/lib/show-submitted-data'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { useRole } from './roles-provider'
 import { RolesMutateDrawer } from './roles-mutate-drawer'
+import RolesPermissionsDialog from './roles-permissions-dialog'
 
 export function RoleDialogs() {
   const { open, setOpen, currentRow, setCurrentRow } = useRole()
@@ -17,7 +18,7 @@ export function RoleDialogs() {
       {currentRow && (
         <>
           <RolesMutateDrawer
-            key={`task-update-${currentRow.id}`}
+            key={`role-update-${currentRow.id}`}
             open={open === 'update'}
             onOpenChange={() => {
               setOpen('update')
@@ -28,8 +29,19 @@ export function RoleDialogs() {
             currentRow={currentRow}
           />
 
+          <RolesPermissionsDialog
+            key={`role-permission-${currentRow.id}`}
+            open={open == 'permission'}
+            onOpenChange={() => {
+              setOpen('permission')
+              setTimeout(() => {
+                setCurrentRow(null)
+              }, 500)
+            }}
+          />
+
           <ConfirmDialog
-            key='task-delete'
+            key='role-delete'
             destructive
             open={open === 'delete'}
             onOpenChange={() => {

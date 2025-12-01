@@ -36,7 +36,7 @@ const RolePermissionLayout = ({ children }: { children: React.ReactNode }) => {
           <LanguageSwitch />
           <ThemeSwitch />
           <ConfigDrawer />
-          <ProfileDropdown />
+          {/* <ProfileDropdown /> */}
         </div>
       </Header>
       {children}
