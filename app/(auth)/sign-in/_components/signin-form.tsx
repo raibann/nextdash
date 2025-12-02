@@ -20,7 +20,6 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { userTestData } from '@/lib/sample/user-data'
 import { signInWithEmail } from '@/server/actions/user-actions'
 import { toast } from 'sonner'
 import { redirect } from 'next/navigation'
@@ -41,8 +40,8 @@ export default function SignInForm({ query }: { query?: string }) {
     mode: 'onChange',
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: userTestData.email,
-      password: userTestData.password,
+      email: '',
+      password: '',
     },
   })
 

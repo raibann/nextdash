@@ -5,6 +5,7 @@ import { Toaster } from 'sonner'
 import { FontProvider } from '@/context/font-provider'
 import { DirectionProvider } from '@/context/direction-provider'
 import { Inter, Kantumruy_Pro, Manrope } from 'next/font/google'
+import { createAdmin } from '@/server/services/create-admin'
 
 export const metadata: Metadata = {
   title: {

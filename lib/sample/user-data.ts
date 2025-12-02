@@ -1,6 +1,5 @@
 export const userTestData = {
-  fullname: 'Test User',
-  email: 'test@local.test',
-  password: '12345678',
-  role: 'user',
+  name: 'Test User',
+  email: process.env.BETTER_AUTH_ADMIN,
+  password: process.env.BETTER_AUTH_PWD,
 }
