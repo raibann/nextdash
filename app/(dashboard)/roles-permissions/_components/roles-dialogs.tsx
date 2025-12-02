@@ -1,16 +1,37 @@
 'use client'
-import { showSubmittedData } from '@/lib/show-submitted-data'
+// import { showSubmittedData } from '@/lib/show-submitted-data'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { useRole } from './roles-provider'
 import { RolesMutateDrawer } from './roles-mutate-drawer'
 import RolesPermissionsDialog from './roles-permissions-dialog'
+import { useTransition } from 'react'
+import { deleteRole } from '@/server/actions/role-action'
+import { toast } from 'sonner'
+import { getQueryClient } from '@/lib/react-query'
 
 export function RoleDialogs() {
+  const [isPending, startTransition] = useTransition()
   const { open, setOpen, currentRow, setCurrentRow } = useRole()
+
+  const handleConfirmDelete = (id: string) => {
+    startTransition(async () => {
+      const res = await deleteRole(id)
+      if (res.error !== null) {
+        toast.error(res.error)
+      }
+      if (res.data) {
+        toast.success('Deleted Role!')
+        setOpen(null)
+        getQueryClient().invalidateQueries({
+          queryKey: ['roles'],
+        })
+      }
+    })
+  }
   return (
     <>
       <RolesMutateDrawer
-        key='task-create'
+        key='role-create'
         open={open === 'create'}
         onOpenChange={() => setOpen('create')}
       />
@@ -50,16 +71,8 @@ export function RoleDialogs() {
                 setCurrentRow(null)
               }, 500)
             }}
-            handleConfirm={() => {
-              setOpen(null)
-              setTimeout(() => {
-                setCurrentRow(null)
-              }, 500)
-              showSubmittedData(
-                currentRow,
-                'The following task has been deleted:'
-              )
-            }}
+            isLoading={isPending}
+            handleConfirm={() => handleConfirmDelete(currentRow.id)}
             className='max-w-md'
             title={`Delete this task: ${currentRow.id} ?`}
             desc={

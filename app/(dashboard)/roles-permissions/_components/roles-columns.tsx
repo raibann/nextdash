@@ -9,8 +9,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import ClipboardButton from '@/components/clipboard-btn'
+import { Role } from '@/server/actions/role-action'
 
-export const rolesColumns: ColumnDef<RolePermRes.Role>[] = [
+export const rolesColumns: ColumnDef<Role>[] = [
   {
     id: 'select',
     header: ({ table }) => (

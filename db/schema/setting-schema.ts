@@ -1,3 +1,4 @@
+import { createId } from '@paralleldrive/cuid2'
 import {
   pgTable,
   text,
@@ -10,7 +11,9 @@ import {
 import { relations } from 'drizzle-orm/relations'
 
 export const page = pgTable('page', {
-  id: text('id').primaryKey(),
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => createId()),
   name: varchar('name', { length: 100 }).notNull(),
   slug: varchar('slug', { length: 150 }).notNull().unique(), // e.g. "users"
   icon: varchar('icon', { length: 50 }), // optional for sidebar

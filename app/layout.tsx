@@ -5,7 +5,7 @@ import { Toaster } from 'sonner'
 import { FontProvider } from '@/context/font-provider'
 import { DirectionProvider } from '@/context/direction-provider'
 import { Inter, Kantumruy_Pro, Manrope } from 'next/font/google'
-import { createAdmin } from '@/server/services/create-admin'
+import ReactQueryProviders from '@/context/react-query-provider'
 
 export const metadata: Metadata = {
   title: {
@@ -44,18 +44,21 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${manrope.variable} ${katumruyPro} antialiased`}
       >
-        <FontProvider>
-          <ThemeProvider
-            attribute='class'
-            enableSystem
-            disableTransitionOnChange
-          >
-            <DirectionProvider>
-              <Toaster richColors />
-              {children}
-            </DirectionProvider>
-          </ThemeProvider>
-        </FontProvider>
+        <ReactQueryProviders>
+          <FontProvider>
+            <ThemeProvider
+              attribute='class'
+              enableSystem
+              disableTransitionOnChange
+            >
+              <DirectionProvider>
+                <Toaster richColors position='top-center' />
+
+                {children}
+              </DirectionProvider>
+            </ThemeProvider>
+          </FontProvider>
+        </ReactQueryProviders>
       </body>
     </html>
   )

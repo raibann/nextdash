@@ -13,16 +13,13 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
-
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field'
-
 import { Input } from '@/components/ui/input'
-import { showSubmittedData } from '@/lib/show-submitted-data'
 import { IconName, IconPicker } from '@/components/ui/icon-picker'
 import {
   InputGroup,
@@ -30,15 +27,19 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from '@/components/ui/input-group'
+import { createRole, Role, updateRole } from '@/server/actions/role-action'
+import { Spinner } from '@/components/ui/spinner'
+import { toast } from 'sonner'
+import { getQueryClient } from '@/lib/react-query'
 
 type RolesMutateDrawerProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  currentRow?: RolePermRes.Role
+  currentRow?: Role
 }
 
 const formSchema = z.object({
-  id: z.number().optional(),
+  id: z.string().optional(),
   name: z.string().min(1, 'Name is required'),
   desc: z.string().optional(),
   icon: z.string().optional(),
@@ -54,19 +55,53 @@ export function RolesMutateDrawer({
   const isUpdate = !!currentRow
 
   const form = useForm<FormSchema>({
+    mode: 'onChange',
     resolver: zodResolver(formSchema),
-    defaultValues: currentRow ?? {
-      id: undefined,
-      name: '',
-      desc: '',
-      icon: 'shield',
+    defaultValues: {
+      id: currentRow?.id || undefined,
+      name: currentRow?.name || '',
+      desc: currentRow?.desc || '',
+      icon: currentRow?.icon || 'shield',
     },
   })
 
-  const onSubmit = (data: FormSchema) => {
-    onOpenChange(false)
-    form.reset()
-    showSubmittedData(data)
+  const onSubmit = async (data: FormSchema) => {
+    if (isUpdate) {
+      const res = await updateRole({
+        id: data.id,
+        name: data.name,
+        icon: data.icon,
+        desc: data.desc,
+      })
+      if (res.error != null) {
+        toast.error(res.error)
+      }
+      if (res.data) {
+        onOpenChange(false)
+        form.reset()
+        getQueryClient().invalidateQueries({
+          queryKey: ['roles'],
+        })
+        // showSubmittedData(data)
+      }
+    } else {
+      const res = await createRole({
+        name: data.name,
+        desc: data.desc,
+        icon: data.icon,
+      })
+      if (res.error != null) {
+        toast.error(res.error)
+      }
+      if (res.data) {
+        toast.success('Create Role Success!')
+        onOpenChange(false)
+        form.reset()
+        getQueryClient().invalidateQueries({
+          queryKey: ['roles'],
+        })
+      }
+    }
   }
 
   return (
@@ -173,8 +208,19 @@ export function RolesMutateDrawer({
           <SheetClose asChild>
             <Button variant='outline'>Close</Button>
           </SheetClose>
-          <Button type='submit' form='form-role'>
-            Save changes
+          <Button
+            type='submit'
+            form='form-role'
+            disabled={!form.formState.isValid || form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting ? (
+              <>
+                <Spinner />
+                Saving
+              </>
+            ) : (
+              <>{isUpdate ? 'Save' : 'Save changes'}</>
+            )}
           </Button>
         </SheetFooter>
       </SheetContent>

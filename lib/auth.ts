@@ -24,6 +24,7 @@ export const auth = betterAuth({
     nextCookies(),
     openAPI({
       disableDefaultReference: process.env.NODE_ENV !== 'development',
+      theme: 'bluePlanet',
     }),
   ],
   /**

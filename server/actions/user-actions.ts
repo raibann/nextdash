@@ -24,7 +24,11 @@ const signUpWithEmail = async (req: UserReq.SingUpWithEmail) => {
     })
     return { data, error: null }
   } catch (error) {
-    return { data: null, error }
+    if (error instanceof Error) {
+      return { data: null, error: error.message }
+    }
+    console.error(error)
+    return { data: null, error: 'Something went wrong!' }
   }
 }
 const signInWithEmail = async (req: UserReq.SingInWithEmail) => {
@@ -39,7 +43,11 @@ const signInWithEmail = async (req: UserReq.SingInWithEmail) => {
     })
     return { data, error: null }
   } catch (error) {
-    return { data: null, error }
+    if (error instanceof Error) {
+      return { data: null, error: error.message }
+    }
+    console.error(error)
+    return { data: null, error: 'Something went wrong!' }
   }
 }
 

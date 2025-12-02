@@ -20,7 +20,6 @@ import {
   FieldError,
   FieldGroup,
 } from '@/components/ui/field'
-import { userTestData } from '@/lib/sample/user-data'
 import { toast } from 'sonner'
 import { signUpWithEmail } from '@/server/actions/user-actions'
 import { redirect } from 'next/navigation'
@@ -44,10 +43,10 @@ export default function SignUpForm() {
     mode: 'onChange',
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullname: userTestData.fullname,
-      email: userTestData.email,
-      password: userTestData.password,
-      confirmPassword: userTestData.password,
+      fullname: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
       image: undefined,
       imagePreview: undefined,
     },
@@ -74,8 +73,8 @@ export default function SignUpForm() {
       image: undefined,
     })
 
-    if (res.error != null && res.error instanceof Error) {
-      toast.error(res.error.message)
+    if (res.error != null) {
+      toast.error(res.error)
     }
 
     if (res.data) {

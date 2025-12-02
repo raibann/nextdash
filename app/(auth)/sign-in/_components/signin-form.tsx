@@ -55,8 +55,8 @@ export default function SignInForm({ query }: { query?: string }) {
       password: data.password,
     })
 
-    if (res.error != null && res.error instanceof Error) {
-      toast.error(res.error.message)
+    if (res.error != null) {
+      toast.error(res.error)
     }
 
     if (res.data != null) {

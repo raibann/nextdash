@@ -71,6 +71,20 @@
       "when": 1764577921239,
       "tag": "20251201083201_update_user_to_role_base",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1764664059066,
+      "tag": "20251202082739_update_role_id_and_setting",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1764667212493,
+      "tag": "20251202092012_update_user_role",
+      "breakpoints": true
     }
   ]
 }

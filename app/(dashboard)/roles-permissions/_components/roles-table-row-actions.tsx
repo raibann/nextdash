@@ -11,9 +11,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useRole } from './roles-provider'
+import { Role } from './role-action'
 
 type RoleTableRowActionsProps = {
-  row: Row<RolePermRes.Role>
+  row: Row<Role>
 }
 
 export function RoleTableRowActions({ row }: RoleTableRowActionsProps) {

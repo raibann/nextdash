@@ -25,17 +25,23 @@ import {
 import { useEffect, useState } from 'react'
 import { RoleTableBulkActions } from './roles-table-bulk-actions'
 import { rolesColumns as columns } from './roles-columns'
+import { Role } from '@/server/actions/role-action'
+import { Skeleton } from '@/components/ui/skeleton'
 
 type DataTableProps = {
-  data: RolePermRes.Role[]
+  data: Role[]
   search: Record<string, unknown>
   navigate: NavigateFn
+  loading: boolean
+  error: Error | null
 }
 
 const RolesTable = ({
   data,
   search = {},
   navigate = () => {},
+  loading,
+  error,
 }: DataTableProps) => {
   // Local UI-only states
   const [rowSelection, setRowSelection] = useState({})
@@ -56,9 +62,9 @@ const RolesTable = ({
     globalFilter: { enabled: false },
     columnFilters: [
       // username per-column text filter
-      { columnId: 'username', searchKey: 'username', type: 'string' },
-      { columnId: 'status', searchKey: 'status', type: 'array' },
-      { columnId: 'role', searchKey: 'role', type: 'array' },
+      // { columnId: 'username', searchKey: 'username', type: 'string' },
+      // { columnId: 'status', searchKey: 'status', type: 'array' },
+      // { columnId: 'role', searchKey: 'role', type: 'array' },
     ],
   })
   // eslint-disable-next-line react-hooks/incompatible-library
@@ -89,6 +95,7 @@ const RolesTable = ({
   useEffect(() => {
     ensurePageInRange(table.getPageCount())
   }, [table, ensurePageInRange])
+
   return (
     <div
       className={cn(
@@ -131,7 +138,21 @@ const RolesTable = ({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {loading ? (
+              Array(3)
+                .fill('')
+                .map((_, ind) => (
+                  <TableRow key={ind}>
+                    {Array(columns.length)
+                      .fill('')
+                      .map((_, idx) => (
+                        <TableCell className='h-10 text-center' key={idx}>
+                          <Skeleton className='h-full' />
+                        </TableCell>
+                      ))}
+                  </TableRow>
+                ))
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -155,6 +176,15 @@ const RolesTable = ({
                   ))}
                 </TableRow>
               ))
+            ) : error ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className='h-24 text-center'
+                >
+                  {error.message}
+                </TableCell>
+              </TableRow>
             ) : (
               <TableRow>
                 <TableCell

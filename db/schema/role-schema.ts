@@ -7,12 +7,14 @@ import {
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { user } from './auth-schema'
-
+import { createId } from '@paralleldrive/cuid2'
 //
 // ROLES TABLE
 //
 export const role = pgTable('role', {
-  id: text('id').primaryKey(), // example: "admin", "editor", "member"
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => createId()),
   desc: text('desc'),
   name: text('name').notNull().unique(),
   icon: varchar('icon', { length: 50 }),
@@ -22,13 +24,13 @@ export const role = pgTable('role', {
     .notNull(),
 })
 
-export type RoleSchema = typeof role.$inferSelect
-
 //
 // PERMISSIONS TABLE
 //
 export const permission = pgTable('permission', {
-  id: text('id').primaryKey(), // example: "user.create", "post.update"
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => createId()), // example: "user.create", "post.update"
   desc: text('desc'),
   name: text('name').notNull(),
   slug: varchar('slug').notNull().unique(),
