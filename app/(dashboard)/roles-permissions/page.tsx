@@ -1,5 +1,5 @@
 'use client'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { RoleDialogs } from './_components/roles-dialogs'
 import { RolesPrimaryButtons } from './_components/roles-primary-buttons'
 import { RoleProvider } from './_components/roles-provider'
@@ -7,25 +7,28 @@ import RolesTable from './_components/roles-table'
 import { Main } from '@/components/layout/main'
 import { listRole } from '@/server/actions/role-action'
 import { useDeferredValue, useState } from 'react'
+import { PaginationState } from '@tanstack/react-table'
 
 const Roles = () => {
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0, //initial page index
+    pageSize: 10, //default page size
+  })
   const [search, setSearch] = useState('')
-
   const searchValue = useDeferredValue(search)
+
   const {
     data: roles,
     isPending,
     error,
   } = useQuery({
-    queryKey: ['roles', page, pageSize, searchValue],
+    queryKey: ['roles', pagination, searchValue],
     queryFn: () =>
       listRole({
-        page: page,
-        pageSize: pageSize,
+        ...pagination,
         search: searchValue,
       }),
+    placeholderData: keepPreviousData,
   })
 
   return (
@@ -39,11 +42,14 @@ const Roles = () => {
           <RolesPrimaryButtons />
         </div>
         <RolesTable
+          rowCount={roles?.rowCount || 0}
           loading={isPending}
           data={roles?.data || []}
+          setPagination={setPagination}
           error={error}
-          search={{}}
-          navigate={() => {}}
+          pagination={pagination}
+          setGlobalFilter={setSearch}
+          globalFilter={search}
         />
       </Main>
       <RoleDialogs />

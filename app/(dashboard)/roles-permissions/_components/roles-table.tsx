@@ -8,7 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { NavigateFn, useTableUrlState } from '@/hooks/use-table-url-state'
 import { cn } from '@/lib/utils'
 import {
   getSortedRowModel,
@@ -21,8 +20,10 @@ import {
   getPaginationRowModel,
   useReactTable,
   flexRender,
+  PaginationState,
+  OnChangeFn,
 } from '@tanstack/react-table'
-import { useEffect, useState } from 'react'
+import { SetStateAction, Dispatch, useState } from 'react'
 import { RoleTableBulkActions } from './roles-table-bulk-actions'
 import { rolesColumns as columns } from './roles-columns'
 import { Role } from '@/server/actions/role-action'
@@ -30,43 +31,31 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 type DataTableProps = {
   data: Role[]
-  search: Record<string, unknown>
-  navigate: NavigateFn
+  rowCount: number
+  pagination?: PaginationState
+  setPagination: Dispatch<SetStateAction<PaginationState>>
   loading: boolean
   error: Error | null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setGlobalFilter: OnChangeFn<any>
+  globalFilter?: string
 }
 
 const RolesTable = ({
   data,
-  search = {},
-  navigate = () => {},
+  rowCount,
   loading,
   error,
+  pagination,
+  setPagination,
+  globalFilter,
+  setGlobalFilter,
 }: DataTableProps) => {
   // Local UI-only states
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
 
-  // Synced with URL states (keys/defaults mirror users route search schema)
-  const {
-    columnFilters,
-    onColumnFiltersChange,
-    pagination,
-    onPaginationChange,
-    ensurePageInRange,
-  } = useTableUrlState({
-    search,
-    navigate,
-    pagination: { defaultPage: 1, defaultPageSize: 10 },
-    globalFilter: { enabled: false },
-    columnFilters: [
-      // username per-column text filter
-      // { columnId: 'username', searchKey: 'username', type: 'string' },
-      // { columnId: 'status', searchKey: 'status', type: 'array' },
-      // { columnId: 'role', searchKey: 'role', type: 'array' },
-    ],
-  })
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
@@ -75,12 +64,17 @@ const RolesTable = ({
       sorting,
       pagination,
       rowSelection,
-      columnFilters,
       columnVisibility,
+      globalFilter,
     },
+    // pagination
+    rowCount: rowCount,
+    manualPagination: true,
+    onPaginationChange: setPagination,
+    // filter
+    manualFiltering: true,
+    onGlobalFilterChange: setGlobalFilter,
     enableRowSelection: true,
-    onPaginationChange,
-    onColumnFiltersChange,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
@@ -92,10 +86,6 @@ const RolesTable = ({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
-  useEffect(() => {
-    ensurePageInRange(table.getPageCount())
-  }, [table, ensurePageInRange])
-
   return (
     <div
       className={cn(
@@ -103,12 +93,7 @@ const RolesTable = ({
         'flex flex-1 flex-col gap-4'
       )}
     >
-      <DataTableToolbar
-        table={table}
-        searchPlaceholder='Filter roles...'
-        searchKey='name'
-        filters={[]}
-      />
+      <DataTableToolbar table={table} searchPlaceholder='Search roles...' />
       <div className='overflow-hidden rounded-md border'>
         <Table>
           <TableHeader>

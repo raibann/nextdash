@@ -1,4 +1,5 @@
 import { NavItem } from '@/components/layout/types'
+import { ReadonlyURLSearchParams } from 'next/navigation'
 
 export function checkIsActive(href: string, item: NavItem, mainNav = false) {
   return (
@@ -23,4 +24,22 @@ export function checkIsActiveByPath(
       href.split('/')[1] !== '' &&
       href.split('/')[1] === url?.split('/')[1])
   )
+}
+
+export function searchParamsToRecord(
+  params: ReadonlyURLSearchParams
+): Record<string, unknown> {
+  const obj: Record<string, unknown> = {}
+
+  params.forEach((value, key) => {
+    // Attempt to convert JSON (arrays, objects, numbers, booleans)
+    try {
+      obj[key] = JSON.parse(value)
+    } catch {
+      // Fallback to string
+      obj[key] = value
+    }
+  })
+
+  return obj
 }

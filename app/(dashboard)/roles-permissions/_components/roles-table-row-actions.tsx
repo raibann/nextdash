@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useRole } from './roles-provider'
-import { Role } from './role-action'
+import { Role } from '@/server/actions/role-action'
 
 type RoleTableRowActionsProps = {
   row: Row<Role>

@@ -68,7 +68,7 @@ export function DataTableToolbar<TData>({
         </div>
         {isFiltered && (
           <Button
-            variant='ghost'
+            variant='destructive'
             onClick={() => {
               table.resetColumnFilters()
               table.setGlobalFilter('')

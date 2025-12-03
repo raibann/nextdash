@@ -58,14 +58,24 @@ export function RolesMutateDrawer({
     mode: 'onChange',
     resolver: zodResolver(formSchema),
     defaultValues: {
-      id: currentRow?.id || undefined,
-      name: currentRow?.name || '',
-      desc: currentRow?.desc || '',
-      icon: currentRow?.icon || 'shield',
+      id: currentRow?.id,
+      name: currentRow?.name ?? '',
+      desc: currentRow?.desc ?? '',
+      icon: currentRow?.icon ?? 'shield',
     },
   })
 
+  const onReset = () => {
+    toast.success(isUpdate ? 'Update Role Success!' : 'Create Role Success!')
+    onOpenChange(false)
+    form.reset()
+    getQueryClient().invalidateQueries({
+      queryKey: ['roles'],
+    })
+  }
+
   const onSubmit = async (data: FormSchema) => {
+    // update
     if (isUpdate) {
       const res = await updateRole({
         id: data.id,
@@ -73,33 +83,32 @@ export function RolesMutateDrawer({
         icon: data.icon,
         desc: data.desc,
       })
-      if (res.error != null) {
+      if (res.error !== null) {
         toast.error(res.error)
       }
       if (res.data) {
-        onOpenChange(false)
-        form.reset()
-        getQueryClient().invalidateQueries({
-          queryKey: ['roles'],
-        })
-        // showSubmittedData(data)
+        onReset()
+        // if (process.env.NODE_ENV === 'development') {
+        //   showSubmittedData(data)
+        // }
       }
-    } else {
+    } // Create
+    else {
       const res = await createRole({
         name: data.name,
         desc: data.desc,
         icon: data.icon,
       })
-      if (res.error != null) {
+
+      if (res.error !== null) {
         toast.error(res.error)
       }
+
       if (res.data) {
-        toast.success('Create Role Success!')
-        onOpenChange(false)
-        form.reset()
-        getQueryClient().invalidateQueries({
-          queryKey: ['roles'],
-        })
+        onReset()
+        // if (process.env.NODE_ENV === 'development') {
+        //   showSubmittedData(data)
+        // }
       }
     }
   }
@@ -164,6 +173,7 @@ export function RolesMutateDrawer({
                       id='role-name'
                       placeholder='Enter role name'
                       aria-invalid={fieldState.invalid}
+                      autoComplete='off'
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -219,7 +229,7 @@ export function RolesMutateDrawer({
                 Saving
               </>
             ) : (
-              <>{isUpdate ? 'Save' : 'Save changes'}</>
+              <>{isUpdate ? 'Save changes' : 'Save'}</>
             )}
           </Button>
         </SheetFooter>

@@ -427,7 +427,7 @@ const IconPicker = React.forwardRef<
       >
         <PopoverTrigger ref={ref} asChild {...props}>
           {children || (
-            <Button variant='outline' size={'icon-sm'}>
+            <Button variant='outline' size={'icon'}>
               {value || selectedIcon ? (
                 <>
                   <Icon name={(value || selectedIcon)!} />{' '}

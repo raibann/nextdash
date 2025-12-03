@@ -42,7 +42,7 @@ export const rolesColumns: ColumnDef<Role>[] = [
       <DataTableColumnHeader column={column} title='ID' />
     ),
     cell: ({ row }) => (
-      <div className='w-[80px] flex items-center space-x-2 group'>
+      <div className='max-w-25 flex items-center space-x-2 group'>
         <Tooltip>
           <TooltipTrigger asChild>
             <p className='truncate'>{row.getValue('id')}</p>
@@ -69,7 +69,7 @@ export const rolesColumns: ColumnDef<Role>[] = [
     cell: ({ row }) => {
       const icon = row.original.icon
       return (
-        <div className='flex space-x-2'>
+        <div className='flex space-x-2 max-w-36'>
           {icon && (
             <DynamicIcon
               className='h-4 w-4 shrink-0'

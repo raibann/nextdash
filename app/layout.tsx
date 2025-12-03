@@ -52,7 +52,7 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <DirectionProvider>
-                <Toaster richColors position='top-center' />
+                <Toaster position='top-center' />
 
                 {children}
               </DirectionProvider>
