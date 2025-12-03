@@ -8,31 +8,32 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { SidebarNav } from './_components/sidebar-nav'
+import { ROUTE_PATHS } from '@/lib/route-path'
 
 const sidebarNavItems = [
   {
     title: 'Profile',
-    href: '/settings',
+    href: ROUTE_PATHS.admin.dashboard.settings.root,
     icon: <UserCog size={18} />,
   },
   {
     title: 'Account',
-    href: '/settings/account',
+    href: ROUTE_PATHS.admin.dashboard.settings.accounts,
     icon: <Wrench size={18} />,
   },
   {
     title: 'Appearance',
-    href: '/settings/appearance',
+    href: ROUTE_PATHS.admin.dashboard.settings.appearances,
     icon: <Palette size={18} />,
   },
   {
     title: 'Notifications',
-    href: '/settings/notifications',
+    href: ROUTE_PATHS.admin.dashboard.settings.notifications,
     icon: <Bell size={18} />,
   },
   {
     title: 'Display',
-    href: '/settings/display',
+    href: ROUTE_PATHS.admin.dashboard.settings.display,
     icon: <Monitor size={18} />,
   },
 ]

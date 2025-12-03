@@ -3,7 +3,7 @@
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 
-const userAuthed = async () => {
+const getSession = async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -51,4 +51,4 @@ const signInWithEmail = async (req: UserReq.SingInWithEmail) => {
   }
 }
 
-export { userAuthed, signUpWithEmail, signInWithEmail }
+export { getSession, signUpWithEmail, signInWithEmail }

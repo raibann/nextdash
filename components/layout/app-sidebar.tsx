@@ -11,14 +11,26 @@ import {
 import { sidebarData } from './data/sidebar-data'
 import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
-import { TeamSwitcher } from './team-switcher'
+// import { TeamSwitcher } from './team-switcher'
+import CompanyHeader from './company-header'
+import { useQuery } from '@tanstack/react-query'
+import { getSession } from '@/server/actions/user-actions'
 
 export function AppSidebar() {
   const { collapsible, variant } = useLayout()
+
+  const { data } = useQuery({
+    queryKey: ['user-session'],
+    queryFn: getSession,
+  })
+
+  if (!data) return null
+
   return (
     <Sidebar collapsible={collapsible} variant={variant}>
       <SidebarHeader>
-        <TeamSwitcher teams={sidebarData.teams} />
+        <CompanyHeader />
+        {/* <TeamSwitcher teams={sidebarData.teams} /> */}
 
         {/* Replace <TeamSwitch /> with the following <AppTitle />
          /* if you want to use the normal app title instead of TeamSwitch dropdown */}
@@ -30,7 +42,13 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={sidebarData.user} />
+        <NavUser
+          user={{
+            avatar: data.user.image || '',
+            email: data.user.email,
+            name: data.user.name,
+          }}
+        />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

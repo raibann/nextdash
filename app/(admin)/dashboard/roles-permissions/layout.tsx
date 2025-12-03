@@ -1,7 +1,6 @@
 import { ConfigDrawer } from '@/components/config-drawer'
 import LanguageSwitch from '@/components/language-switch'
 import { TopNav } from '@/components/layout/top-nav'
-import { ProfileDropdown } from '@/components/profile-dropdown'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { Header } from '@/components/layout/header'
 import React from 'react'
@@ -16,12 +15,12 @@ export const metadata: Metadata = {
 const topNav = [
   {
     title: 'Roles',
-    href: '/roles-permissions',
+    href: '/dashboard/roles-permissions',
     isActive: true,
   },
   {
     title: 'Permissions',
-    href: '/roles-permissions/permissions',
+    href: '/dashboard/roles-permissions/permissions',
     isActive: false,
   },
 ]

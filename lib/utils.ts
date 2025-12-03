@@ -58,3 +58,11 @@ export function getPageNumbers(currentPage: number, totalPages: number) {
 
   return rangeWithDots
 }
+
+export function shortName(name: string): string {
+  if (name.includes(' ')) {
+    return `${name.charAt(0)}${name.charAt(name.indexOf(' ') + 1)}`
+  } else {
+    return name.charAt(0)
+  }
+}
