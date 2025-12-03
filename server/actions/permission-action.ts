@@ -26,8 +26,9 @@ const createPermission = async (body: CreatePermission) => {
 const updatePermission = async (body: UpdateRole) => {
   try {
     if (!body.id) return { data: null, error: 'Id is required' }
+
     // 1. Check if another role already uses the same name
-    const existed = await db.query.role.findFirst({
+    const existed = await db.query.permission.findFirst({
       where: and(
         eq(permission.slug, body.slug),
         ne(permission.id, body.id) // ignore current role
@@ -48,7 +49,7 @@ const updatePermission = async (body: UpdateRole) => {
       .where(eq(permission.id, body.id))
       .returning() // optional: get updated data
 
-    return { data: data, error: null }
+    return { data: data[0], error: null }
   } catch (error) {
     throwError(error)
   }
@@ -78,7 +79,7 @@ const listPermission = async ({
           ilike(permission.slug, `%${search}%`)
         )
       : undefined
-    const data = await db.query.role.findMany({
+    const data = await db.query.permission.findMany({
       where,
       limit: pageSize,
       offset: pageIndex * pageSize,

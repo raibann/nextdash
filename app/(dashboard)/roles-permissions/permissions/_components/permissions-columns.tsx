@@ -8,8 +8,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import ClipboardButton from '@/components/clipboard-btn'
+import { Permission } from '@/server/actions/permission-action'
 
-export const permissionColumns: ColumnDef<RolePermRes.Permission>[] = [
+export const permissionColumns: ColumnDef<Permission>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -40,7 +41,7 @@ export const permissionColumns: ColumnDef<RolePermRes.Permission>[] = [
       <DataTableColumnHeader column={column} title='ID' />
     ),
     cell: ({ row }) => (
-      <div className='w-[80px] flex items-center space-x-2 group'>
+      <div className='w-25 flex items-center space-x-2 group'>
         <Tooltip>
           <TooltipTrigger asChild>
             <p className='truncate'>{row.getValue('id')}</p>
@@ -65,7 +66,11 @@ export const permissionColumns: ColumnDef<RolePermRes.Permission>[] = [
     ),
     meta: { className: 'ps-1', tdClassName: 'ps-4' },
     cell: ({ row }) => {
-      return <span className='text-sm capitalize'>{row.getValue('name')}</span>
+      return (
+        <div>
+          <span className='text-sm capitalize'>{row.getValue('name')}</span>
+        </div>
+      )
     },
   },
   {
@@ -76,8 +81,8 @@ export const permissionColumns: ColumnDef<RolePermRes.Permission>[] = [
     meta: { className: 'ps-1', tdClassName: 'ps-4' },
     cell: ({ row }) => {
       return (
-        <div className='flex items-center space-x-2 group'>
-          <span className='text-sm capitalize'>{row.getValue('slug')}</span>
+        <div className='flex items-center space-x-2 group w-50'>
+          <span className='text-sm'>{row.getValue('slug')}</span>
           <ClipboardButton
             text={row.getValue('slug')}
             className='hidden group-hover:block transition-all duration-300 ease-in-out'
@@ -92,7 +97,7 @@ export const permissionColumns: ColumnDef<RolePermRes.Permission>[] = [
       <DataTableColumnHeader column={column} title='Description' />
     ),
     cell: ({ row }) => (
-      <div className='max-w-50 text-sm text-muted-foreground pl-2'>
+      <div className='text-sm text-muted-foreground pl-2'>
         <Tooltip>
           <TooltipTrigger asChild>
             <p className='truncate'>{row.getValue('desc')}</p>

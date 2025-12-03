@@ -1,45 +1,44 @@
 'use client'
 // import { showSubmittedData } from '@/lib/show-submitted-data'
 import { ConfirmDialog } from '@/components/confirm-dialog'
-import { useRole } from './roles-provider'
-import { RolesMutateDrawer } from './roles-mutate-drawer'
-import RolesPermissionsDialog from './roles-permissions-dialog'
 import { useTransition } from 'react'
-import { deleteRole } from '@/server/actions/role-action'
 import { toast } from 'sonner'
 import { getQueryClient } from '@/lib/react-query'
+import { deletePermission } from '@/server/actions/permission-action'
+import { PermissionsMutateDrawer } from './permissions-mutate-drawer'
+import { usePermission } from './permissions-provider'
 
-export function RoleDialogs() {
+export function PermissionDialogs() {
   const [isPending, startTransition] = useTransition()
-  const { open, setOpen, currentRow, setCurrentRow } = useRole()
+  const { open, setOpen, currentRow, setCurrentRow } = usePermission()
 
   const handleConfirmDelete = (id: string) => {
     startTransition(async () => {
-      const res = await deleteRole(id)
-      if (res.error !== null) {
-        toast.error(res.error)
+      const res = await deletePermission(id)
+      if (res?.error !== null) {
+        toast.error(res?.error)
       }
-      if (res.data) {
-        toast.success('Deleted Role!')
+      if (res?.data) {
+        toast.success('Deleted Permission!')
         setOpen(null)
         getQueryClient().invalidateQueries({
-          queryKey: ['roles'],
+          queryKey: ['permissions'],
         })
       }
     })
   }
   return (
     <>
-      <RolesMutateDrawer
-        key='role-create'
+      <PermissionsMutateDrawer
+        key='permission-create'
         open={open === 'create'}
         onOpenChange={() => setOpen('create')}
       />
 
       {currentRow && (
         <>
-          <RolesMutateDrawer
-            key={`role-update-${currentRow.id}`}
+          <PermissionsMutateDrawer
+            key={`permission-update-${currentRow.id}`}
             open={open === 'update'}
             onOpenChange={() => {
               setOpen('update')
@@ -50,19 +49,8 @@ export function RoleDialogs() {
             currentRow={currentRow}
           />
 
-          <RolesPermissionsDialog
-            key={`role-permission-${currentRow.id}`}
-            open={open == 'permission'}
-            onOpenChange={() => {
-              setOpen('permission')
-              setTimeout(() => {
-                setCurrentRow(null)
-              }, 500)
-            }}
-          />
-
           <ConfirmDialog
-            key='role-delete'
+            key='permission-delete'
             destructive
             open={open === 'delete'}
             onOpenChange={() => {
@@ -74,7 +62,7 @@ export function RoleDialogs() {
             isLoading={isPending}
             handleConfirm={() => handleConfirmDelete(currentRow.id)}
             className='max-w-md'
-            title={`Delete this role: ${currentRow.id} ?`}
+            title={`Delete this permission: ${currentRow.id} ?`}
             desc={
               <>
                 You are about to delete a task with the ID{' '}

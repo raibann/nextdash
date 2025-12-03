@@ -20,38 +20,41 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { IconName, IconPicker } from '@/components/ui/icon-picker'
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupText,
   InputGroupTextarea,
 } from '@/components/ui/input-group'
-import { createRole, Role, updateRole } from '@/server/actions/role-action'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from 'sonner'
 import { getQueryClient } from '@/lib/react-query'
+import {
+  createPermission,
+  Permission,
+  updatePermission,
+} from '@/server/actions/permission-action'
 
-type RolesMutateDrawerProps = {
+type PermissionsMutateDrawerProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  currentRow?: Role
+  currentRow?: Permission
 }
 
 const formSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, 'Name is required'),
   desc: z.string().optional(),
-  icon: z.string().optional(),
+  slug: z.string(),
 })
 
 type FormSchema = z.infer<typeof formSchema>
 
-export function RolesMutateDrawer({
+export function PermissionsMutateDrawer({
   open,
   onOpenChange,
   currentRow,
-}: RolesMutateDrawerProps) {
+}: PermissionsMutateDrawerProps) {
   const isUpdate = !!currentRow
 
   const form = useForm<FormSchema>({
@@ -61,42 +64,45 @@ export function RolesMutateDrawer({
       id: currentRow?.id,
       name: currentRow?.name ?? '',
       desc: currentRow?.desc ?? '',
-      icon: currentRow?.icon ?? 'shield',
+      slug: currentRow?.slug ?? '',
     },
   })
 
   const onReset = () => {
-    toast.success(isUpdate ? 'Update Role Success!' : 'Create Role Success!')
+    toast.success(
+      isUpdate ? 'Update Permission Success!' : 'Create Permission Success!'
+    )
     onOpenChange(false)
     form.reset()
     getQueryClient().invalidateQueries({
-      queryKey: ['roles'],
+      queryKey: ['permissions'],
     })
   }
 
   const onSubmit = async (data: FormSchema) => {
     // update
     if (isUpdate) {
-      const res = await updateRole({
+      const res = await updatePermission({
         id: data.id,
         name: data.name,
-        icon: data.icon,
+        slug: data.slug,
         desc: data.desc,
       })
-      if (res.error !== null) {
-        toast.error(res.error)
+      if (res?.error !== null) {
+        console.log('error', res?.error)
+        toast.error(res?.error)
       }
-      if (res.data) {
+      if (res?.data) {
         onReset()
         // if (process.env.NODE_ENV === 'development') {
         //   showSubmittedData(data)
         // }
       }
     } else {
-      const res = await createRole({
+      const res = await createPermission({
         name: data.name,
         desc: data.desc,
-        icon: data.icon,
+        slug: data.slug,
       })
 
       if (res?.error) {
@@ -122,65 +128,73 @@ export function RolesMutateDrawer({
     >
       <SheetContent className='flex flex-col'>
         <SheetHeader className='text-start'>
-          <SheetTitle>{isUpdate ? 'Update Role' : 'Create Role'}</SheetTitle>
+          <SheetTitle>
+            {isUpdate ? 'Update Permission' : 'Create Permission'}
+          </SheetTitle>
           <SheetDescription>
             {isUpdate
-              ? 'Update the role information below.'
-              : 'Create a new role using the fields below.'}
+              ? 'Update the permission information below.'
+              : 'Create a new permission using the fields below.'}
           </SheetDescription>
         </SheetHeader>
 
         <form
-          id='form-role'
+          id='form-permission'
           onSubmit={form.handleSubmit(onSubmit)}
           className='flex-1 space-y-6 overflow-y-auto px-4'
         >
           <FieldGroup>
-            <div className='flex items-center gap-3'>
-              {/* ICON */}
-              <Controller
-                name='icon'
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid} className='w-10'>
-                    <FieldLabel htmlFor='role-icon'>Icon</FieldLabel>
-                    <IconPicker
-                      value={field.value as IconName}
-                      onValueChange={field.onChange}
-                      triggerPlaceholder=''
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-              {/* NAME */}
-              <Controller
-                name='name'
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field
-                    data-invalid={fieldState.invalid}
-                    className='col-span-2'
-                  >
-                    <FieldLabel htmlFor='role-name'>
-                      Name <span className='text-destructive'>*</span>
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      id='role-name'
-                      placeholder='Enter role name'
-                      aria-invalid={fieldState.invalid}
-                      autoComplete='off'
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-            </div>
+            {/* Name */}
+            <Controller
+              name='name'
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid} className='col-span-2'>
+                  <FieldLabel htmlFor='permission-name'>
+                    Name <span className='text-destructive'>*</span>
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id='permission-name'
+                    placeholder='Enter permission name'
+                    aria-invalid={fieldState.invalid}
+                    autoComplete='off'
+                    onChange={(e) => {
+                      const value = e.target.value
+                      field.onChange(value)
+                      form.setValue(
+                        'slug',
+                        value.toLowerCase().replace(/\s+/g, '_')
+                      )
+                    }}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            {/* Slug */}
+            <Controller
+              name='slug'
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid} className='col-span-2'>
+                  <FieldLabel htmlFor='permission-slu'>Slug</FieldLabel>
+                  <Input
+                    {...field}
+                    id='permission-slug'
+                    aria-invalid={fieldState.invalid}
+                    autoComplete='off'
+                    readOnly
+                    disabled
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
 
             {/* DESCRIPTION */}
             <Controller
@@ -188,12 +202,12 @@ export function RolesMutateDrawer({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor='role-desc'>Description</FieldLabel>
+                  <FieldLabel htmlFor='permission-desc'>Description</FieldLabel>
                   <InputGroup>
                     <InputGroupTextarea
                       {...field}
-                      id='role-desc'
-                      placeholder='Write something about this role.'
+                      id='permission-desc'
+                      placeholder='Write something about this permission.'
                       rows={6}
                       className='min-h-24 resize-none'
                       aria-invalid={fieldState.invalid}
@@ -219,7 +233,7 @@ export function RolesMutateDrawer({
           </SheetClose>
           <Button
             type='submit'
-            form='form-role'
+            form='form-permission'
             disabled={!form.formState.isValid || form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? (

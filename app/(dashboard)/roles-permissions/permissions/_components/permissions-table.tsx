@@ -8,7 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { NavigateFn, useTableUrlState } from '@/hooks/use-table-url-state'
 import { cn } from '@/lib/utils'
 import {
   getSortedRowModel,
@@ -21,46 +20,42 @@ import {
   getPaginationRowModel,
   useReactTable,
   flexRender,
+  PaginationState,
+  OnChangeFn,
 } from '@tanstack/react-table'
-import { useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 import { DataTableBulkActions } from './data-table-bulk-actions'
 import { permissionColumns as columns } from './permissions-columns'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Permission } from '@/server/actions/permission-action'
 
 type DataTableProps = {
-  data: RolePermRes.Permission[]
-  search: Record<string, unknown>
-  navigate: NavigateFn
+  data: Permission[]
+  rowCount: number
+  pagination?: PaginationState
+  setPagination: Dispatch<SetStateAction<PaginationState>>
+  loading: boolean
+  error: Error | null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setGlobalFilter: OnChangeFn<any>
+  globalFilter?: string
 }
 
 const PermissionTable = ({
   data,
-  search = {},
-  navigate = () => {},
+  rowCount,
+  loading,
+  error,
+  pagination,
+  setPagination,
+  globalFilter,
+  setGlobalFilter,
 }: DataTableProps) => {
   // Local UI-only states
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
 
-  // Synced with URL states (keys/defaults mirror users route search schema)
-  const {
-    columnFilters,
-    onColumnFiltersChange,
-    pagination,
-    onPaginationChange,
-    ensurePageInRange,
-  } = useTableUrlState({
-    search,
-    navigate,
-    pagination: { defaultPage: 1, defaultPageSize: 10 },
-    globalFilter: { enabled: false },
-    columnFilters: [
-      // username per-column text filter
-      // { columnId: 'username', searchKey: 'username', type: 'string' },
-      // { columnId: 'status', searchKey: 'status', type: 'array' },
-      // { columnId: 'role', searchKey: 'role', type: 'array' },
-    ],
-  })
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
@@ -69,12 +64,17 @@ const PermissionTable = ({
       sorting,
       pagination,
       rowSelection,
-      columnFilters,
       columnVisibility,
+      globalFilter,
     },
+    // pagination
+    rowCount: rowCount,
+    manualPagination: true,
+    onPaginationChange: setPagination,
+    // filter
+    manualFiltering: true,
+    onGlobalFilterChange: setGlobalFilter,
     enableRowSelection: true,
-    onPaginationChange,
-    onColumnFiltersChange,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
@@ -86,9 +86,6 @@ const PermissionTable = ({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
-  useEffect(() => {
-    ensurePageInRange(table.getPageCount())
-  }, [table, ensurePageInRange])
   return (
     <div
       className={cn(
@@ -99,8 +96,6 @@ const PermissionTable = ({
       <DataTableToolbar
         table={table}
         searchPlaceholder='Filter Permission...'
-        searchKey='name'
-        filters={[]}
       />
       <div className='overflow-hidden rounded-md border'>
         <Table>
@@ -131,7 +126,21 @@ const PermissionTable = ({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {loading ? (
+              Array(3)
+                .fill('')
+                .map((_, ind) => (
+                  <TableRow key={ind}>
+                    {Array(columns.length)
+                      .fill('')
+                      .map((_, idx) => (
+                        <TableCell className='h-10 text-center' key={idx}>
+                          <Skeleton className='h-full' />
+                        </TableCell>
+                      ))}
+                  </TableRow>
+                ))
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -155,6 +164,15 @@ const PermissionTable = ({
                   ))}
                 </TableRow>
               ))
+            ) : error ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className='h-24 text-center'
+                >
+                  {error.message}
+                </TableCell>
+              </TableRow>
             ) : (
               <TableRow>
                 <TableCell

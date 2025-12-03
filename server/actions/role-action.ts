@@ -13,11 +13,12 @@ const createRole = async (body: CreateRole) => {
     const existed = await db.query.role.findFirst({
       where: eq(role.name, body.name),
     })
+
     if (existed) {
       return { data: null, error: 'Role already is existed!' }
     }
     const data = await db.insert(role).values(body).returning()
-    return { data: data, error: null }
+    return { data: data[0], error: null }
   } catch (error) {
     throwError(error)
   }
@@ -47,7 +48,7 @@ const updateRole = async (body: UpdateRole) => {
       .where(eq(role.id, body.id))
       .returning() // optional: get updated data
 
-    return { data: data, error: null }
+    return { data: data[0], error: null }
   } catch (error) {
     if (error instanceof Error) {
       return { data: null, error: error.message }

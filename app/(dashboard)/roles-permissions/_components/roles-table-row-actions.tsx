@@ -58,6 +58,7 @@ export function RoleTableRowActions({ row }: RoleTableRowActionsProps) {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
+          variant='destructive'
           onClick={() => {
             setCurrentRow(role)
             setOpen('delete')
@@ -65,7 +66,7 @@ export function RoleTableRowActions({ row }: RoleTableRowActionsProps) {
         >
           Delete
           <DropdownMenuShortcut>
-            <Trash2 size={16} />
+            <Trash2 size={16} className='text-destructive' />
           </DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>

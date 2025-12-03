@@ -93,7 +93,7 @@ const RolesTable = ({
         'flex flex-1 flex-col gap-4'
       )}
     >
-      <DataTableToolbar table={table} searchPlaceholder='Search roles...' />
+      <DataTableToolbar table={table} searchPlaceholder='Filter roles...' />
       <div className='overflow-hidden rounded-md border'>
         <Table>
           <TableHeader>
