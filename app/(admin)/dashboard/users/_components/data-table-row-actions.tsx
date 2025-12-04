@@ -10,8 +10,8 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { type User } from '../_data/schema'
 import { useUsers } from './users-provider'
+import { User } from '@/server/actions/user-actions'
 
 type DataTableRowActionsProps = {
   row: Row<User>
@@ -49,11 +49,11 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
               setCurrentRow(row.original)
               setOpen('delete')
             }}
-            className='text-red-500!'
+            variant='destructive'
           >
             Delete
             <DropdownMenuShortcut>
-              <Trash2 size={16} />
+              <Trash2 size={16} className='text-destructive' />
             </DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>

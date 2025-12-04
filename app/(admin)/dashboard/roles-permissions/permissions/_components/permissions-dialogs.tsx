@@ -4,7 +4,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
 import { getQueryClient } from '@/lib/react-query'
-import { deletePermission } from '@/server/actions/permission-action'
+import { deletePermission } from '@/server/actions/permission-actions'
 import { PermissionsMutateDrawer } from './permissions-mutate-drawer'
 import { usePermission } from './permissions-provider'
 

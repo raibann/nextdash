@@ -9,7 +9,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import ClipboardButton from '@/components/clipboard-btn'
-import { Role } from '@/server/actions/role-action'
+import { Role } from '@/server/actions/role-actions'
 
 export const rolesColumns: ColumnDef<Role>[] = [
   {

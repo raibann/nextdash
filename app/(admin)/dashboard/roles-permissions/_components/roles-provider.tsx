@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import useDialogState from '@/hooks/use-dialog-state'
-import { Role } from '@/server/actions/role-action'
+import { Role } from '@/server/actions/role-actions'
 
 type RoleDialogType = 'create' | 'update' | 'delete' | 'permission'
 

@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 import {
+  OnChangeFn,
+  PaginationState,
   type SortingState,
   type VisibilityState,
   flexRender,
@@ -12,7 +14,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { cn } from '@/lib/utils'
-import { type NavigateFn, useTableUrlState } from '@/hooks/use-table-url-state'
 import {
   Table,
   TableBody,
@@ -23,17 +24,33 @@ import {
 } from '@/components/ui/table'
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
 import { roles } from '../_data/data'
-import { type User } from '../_data/schema'
 import { DataTableBulkActions } from './data-table-bulk-actions'
 import { usersColumns as columns } from './users-columns'
+import { User } from '@/server/actions/user-actions'
+import { Skeleton } from '@/components/ui/skeleton'
 
 type DataTableProps = {
   data: User[]
-  search: Record<string, unknown>
-  navigate: NavigateFn
+  rowCount: number
+  pagination?: PaginationState
+  setPagination: Dispatch<SetStateAction<PaginationState>>
+  loading: boolean
+  error: Error | null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setGlobalFilter: OnChangeFn<any>
+  globalFilter?: string
 }
 
-export function UsersTable({ data, search, navigate }: DataTableProps) {
+export function UsersTable({
+  data,
+  rowCount,
+  loading,
+  error,
+  pagination,
+  setPagination,
+  globalFilter,
+  setGlobalFilter,
+}: DataTableProps) {
   // Local UI-only states
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -44,24 +61,24 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
   // const [pagination, onPaginationChange] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 })
 
   // Synced with URL states (keys/defaults mirror users route search schema)
-  const {
-    columnFilters,
-    onColumnFiltersChange,
-    pagination,
-    onPaginationChange,
-    ensurePageInRange,
-  } = useTableUrlState({
-    search,
-    navigate,
-    pagination: { defaultPage: 1, defaultPageSize: 10 },
-    globalFilter: { enabled: false },
-    columnFilters: [
-      // username per-column text filter
-      { columnId: 'username', searchKey: 'username', type: 'string' },
-      { columnId: 'status', searchKey: 'status', type: 'array' },
-      { columnId: 'role', searchKey: 'role', type: 'array' },
-    ],
-  })
+  // const {
+  //   columnFilters,
+  //   onColumnFiltersChange,
+  //   pagination,
+  //   onPaginationChange,
+  //   ensurePageInRange,
+  // } = useTableUrlState({
+  //   search,
+  //   navigate,
+  //   pagination: { defaultPage: 1, defaultPageSize: 10 },
+  //   globalFilter: { enabled: false },
+  //   columnFilters: [
+  //     // username per-column text filter
+  //     { columnId: 'username', searchKey: 'username', type: 'string' },
+  //     { columnId: 'status', searchKey: 'status', type: 'array' },
+  //     { columnId: 'role', searchKey: 'role', type: 'array' },
+  //   ],
+  // })
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -71,12 +88,20 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
       sorting,
       pagination,
       rowSelection,
-      columnFilters,
+      // columnFilters,
       columnVisibility,
+      globalFilter,
     },
     enableRowSelection: true,
-    onPaginationChange,
-    onColumnFiltersChange,
+    // pagination
+    rowCount: rowCount,
+    manualPagination: true,
+    onPaginationChange: setPagination,
+    // filter
+    manualFiltering: true,
+    onGlobalFilterChange: setGlobalFilter,
+    // onPaginationChange,
+    // onColumnFiltersChange,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
@@ -88,9 +113,9 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
-  useEffect(() => {
-    ensurePageInRange(table.getPageCount())
-  }, [table, ensurePageInRange])
+  // useEffect(() => {
+  //   ensurePageInRange(table.getPageCount())
+  // }, [table, ensurePageInRange])
 
   return (
     <div
@@ -102,24 +127,25 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
       <DataTableToolbar
         table={table}
         searchPlaceholder='Filter users...'
-        searchKey='username'
-        filters={[
-          {
-            columnId: 'status',
-            title: 'Status',
-            options: [
-              { label: 'Active', value: 'active' },
-              { label: 'Inactive', value: 'inactive' },
-              { label: 'Invited', value: 'invited' },
-              { label: 'Suspended', value: 'suspended' },
-            ],
-          },
-          {
-            columnId: 'role',
-            title: 'Role',
-            options: roles.map((role) => ({ ...role })),
-          },
-        ]}
+        // searchPlaceholder='Filter users...'
+        // searchKey='username'
+        // filters={[
+        //   {
+        //     columnId: 'status',
+        //     title: 'Status',
+        //     options: [
+        //       { label: 'Active', value: 'active' },
+        //       { label: 'Inactive', value: 'inactive' },
+        //       { label: 'Invited', value: 'invited' },
+        //       { label: 'Suspended', value: 'suspended' },
+        //     ],
+        //   },
+        //   {
+        //     columnId: 'role',
+        //     title: 'Role',
+        //     options: roles.map((role) => ({ ...role })),
+        //   },
+        // ]}
       />
       <div className='overflow-hidden rounded-md border'>
         <Table>
@@ -150,7 +176,21 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {loading ? (
+              Array(3)
+                .fill('')
+                .map((_, ind) => (
+                  <TableRow key={ind}>
+                    {Array(columns.length)
+                      .fill('')
+                      .map((_, idx) => (
+                        <TableCell className='h-10 text-center' key={idx}>
+                          <Skeleton className='h-full' />
+                        </TableCell>
+                      ))}
+                  </TableRow>
+                ))
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -174,6 +214,15 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
                   ))}
                 </TableRow>
               ))
+            ) : error ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className='h-24 text-center'
+                >
+                  {error.message}
+                </TableCell>
+              </TableRow>
             ) : (
               <TableRow>
                 <TableCell

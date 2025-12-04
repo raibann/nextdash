@@ -1,8 +1,11 @@
 'use client'
 import { useEffect, useState } from 'react'
 import {
+  OnChangeFn,
+  type ColumnFiltersState,
   type SortingState,
   type VisibilityState,
+  type PaginationState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
@@ -13,7 +16,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { cn } from '@/lib/utils'
-import { useTableUrlState } from '@/hooks/use-table-url-state'
 import {
   Table,
   TableBody,
@@ -24,44 +26,45 @@ import {
 } from '@/components/ui/table'
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
 import { priorities, statuses } from '../_data/data'
-import { type Task } from '../_data/schema'
+import type { Task } from '@/server/actions/task-actions'
 import { DataTableBulkActions } from './data-table-bulk-actions'
 import { tasksColumns as columns } from './tasks-columns'
+import { Skeleton } from '@/components/ui/skeleton'
 
 type DataTableProps = {
   data: Task[]
+  rowCount: number
+  loading: boolean
+  error: Error | null
+  pagination: PaginationState
+  onPaginationChange: OnChangeFn<PaginationState>
+  globalFilter?: string
+  onGlobalFilterChange?: OnChangeFn<string>
+  columnFilters: ColumnFiltersState
+  onColumnFiltersChange: OnChangeFn<ColumnFiltersState>
+  ensurePageInRange: (
+    pageCount: number,
+    opts?: { resetTo?: 'first' | 'last' }
+  ) => void
 }
 
-export function TasksTable({ data }: DataTableProps) {
+export function TasksTable({
+  data,
+  rowCount,
+  loading,
+  error,
+  pagination,
+  onPaginationChange,
+  globalFilter,
+  onGlobalFilterChange,
+  columnFilters,
+  onColumnFiltersChange,
+  ensurePageInRange,
+}: DataTableProps) {
   // Local UI-only states
   const [rowSelection, setRowSelection] = useState({})
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-
-  // Local state management for table (uncomment to use local-only state, not synced with URL)
-  // const [globalFilter, onGlobalFilterChange] = useState('')
-  // const [columnFilters, onColumnFiltersChange] = useState<ColumnFiltersState>([])
-  // const [pagination, onPaginationChange] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 })
-
-  // Synced with URL states (updated to match route search schema defaults)
-  const {
-    globalFilter,
-    onGlobalFilterChange,
-    columnFilters,
-    onColumnFiltersChange,
-    pagination,
-    onPaginationChange,
-    ensurePageInRange,
-  } = useTableUrlState({
-    search: {},
-    navigate: () => {},
-    pagination: { defaultPage: 1, defaultPageSize: 10 },
-    globalFilter: { enabled: true, key: 'filter' },
-    columnFilters: [
-      { columnId: 'status', searchKey: 'status', type: 'array' },
-      { columnId: 'priority', searchKey: 'priority', type: 'array' },
-    ],
-  })
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -71,10 +74,18 @@ export function TasksTable({ data }: DataTableProps) {
       sorting,
       columnVisibility,
       rowSelection,
-      columnFilters,
       globalFilter,
       pagination,
+      columnFilters,
     },
+    // pagination
+    rowCount: rowCount,
+    manualPagination: true,
+    onPaginationChange: onPaginationChange,
+    // filter
+    manualFiltering: true,
+    onGlobalFilterChange: onGlobalFilterChange,
+    onColumnFiltersChange: onColumnFiltersChange,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -92,14 +103,14 @@ export function TasksTable({ data }: DataTableProps) {
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    onPaginationChange,
-    onGlobalFilterChange,
-    onColumnFiltersChange,
   })
 
+  // Ensure page is in range when page count changes
   const pageCount = table.getPageCount()
   useEffect(() => {
-    ensurePageInRange(pageCount)
+    if (pageCount > 0) {
+      ensurePageInRange(pageCount)
+    }
   }, [pageCount, ensurePageInRange])
 
   return (
@@ -129,13 +140,14 @@ export function TasksTable({ data }: DataTableProps) {
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className='group/row'>
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead
                       key={header.id}
                       colSpan={header.colSpan}
                       className={cn(
+                        'bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted',
                         header.column.columnDef.meta?.className,
                         header.column.columnDef.meta?.thClassName
                       )}
@@ -153,16 +165,32 @@ export function TasksTable({ data }: DataTableProps) {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {loading ? (
+              Array(3)
+                .fill('')
+                .map((_, ind) => (
+                  <TableRow key={ind}>
+                    {Array(columns.length)
+                      .fill('')
+                      .map((_, idx) => (
+                        <TableCell className='h-10 text-center' key={idx}>
+                          <Skeleton className='h-full' />
+                        </TableCell>
+                      ))}
+                  </TableRow>
+                ))
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
+                  className='group/row'
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
                       className={cn(
+                        'bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted',
                         cell.column.columnDef.meta?.className,
                         cell.column.columnDef.meta?.tdClassName
                       )}
@@ -175,6 +203,15 @@ export function TasksTable({ data }: DataTableProps) {
                   ))}
                 </TableRow>
               ))
+            ) : error ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className='h-24 text-center'
+                >
+                  {error.message}
+                </TableCell>
+              </TableRow>
             ) : (
               <TableRow>
                 <TableCell

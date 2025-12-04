@@ -1,12 +1,12 @@
 import { type ColumnDef } from '@tanstack/react-table'
 import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
+// import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DataTableColumnHeader } from '@/components/data-table'
 import { LongText } from '@/components/long-text'
-import { callTypes, roles } from '../_data/data'
-import { type User } from '../_data/schema'
+// import { callTypes, roles } from '../_data/data'
 import { DataTableRowActions } from './data-table-row-actions'
+import { User } from '@/server/actions/user-actions'
 
 export const usersColumns: ColumnDef<User>[] = [
   {
@@ -37,12 +37,12 @@ export const usersColumns: ColumnDef<User>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'username',
+    accessorKey: 'id',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Username' />
+      <DataTableColumnHeader column={column} title='ID' />
     ),
     cell: ({ row }) => (
-      <LongText className='max-w-36 ps-3'>{row.getValue('username')}</LongText>
+      <LongText className='max-w-36 ps-3'>{row.getValue('id')}</LongText>
     ),
     meta: {
       className: cn(
@@ -53,14 +53,14 @@ export const usersColumns: ColumnDef<User>[] = [
     enableHiding: false,
   },
   {
-    id: 'fullName',
+    accessorKey: 'name',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Name' />
     ),
     cell: ({ row }) => {
-      const { firstName, lastName } = row.original
-      const fullName = `${firstName} ${lastName}`
-      return <LongText className='max-w-36'>{fullName}</LongText>
+      // const { firstName, lastName } = row.original
+      // const fullName = `${firstName} ${lastName}`
+      return <LongText className='max-w-36'>{row.getValue('name')}</LongText>
     },
     meta: { className: 'w-36' },
   },
@@ -73,64 +73,64 @@ export const usersColumns: ColumnDef<User>[] = [
       <div className='w-fit ps-2 text-nowrap'>{row.getValue('email')}</div>
     ),
   },
-  {
-    accessorKey: 'phoneNumber',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Phone Number' />
-    ),
-    cell: ({ row }) => <div>{row.getValue('phoneNumber')}</div>,
-    enableSorting: false,
-  },
-  {
-    accessorKey: 'status',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Status' />
-    ),
-    cell: ({ row }) => {
-      const { status } = row.original
-      const badgeColor = callTypes.get(status)
-      return (
-        <div className='flex space-x-2'>
-          <Badge variant='outline' className={cn('capitalize', badgeColor)}>
-            {row.getValue('status')}
-          </Badge>
-        </div>
-      )
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
-    enableHiding: false,
-    enableSorting: false,
-  },
-  {
-    accessorKey: 'role',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Role' />
-    ),
-    cell: ({ row }) => {
-      const { role } = row.original
-      const userType = roles.find(({ value }) => value === role)
+  // {
+  //   accessorKey: 'phoneNumber',
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title='Phone Number' />
+  //   ),
+  //   cell: ({ row }) => <div>{row.getValue('phoneNumber')}</div>,
+  //   enableSorting: false,
+  // },
+  // {
+  //   accessorKey: 'status',
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title='Status' />
+  //   ),
+  //   cell: ({ row }) => {
+  //     const { status } = row.original
+  //     const badgeColor = callTypes.get(status)
+  //     return (
+  //       <div className='flex space-x-2'>
+  //         <Badge variant='outline' className={cn('capitalize', badgeColor)}>
+  //           {row.getValue('status')}
+  //         </Badge>
+  //       </div>
+  //     )
+  //   },
+  //   filterFn: (row, id, value) => {
+  //     return value.includes(row.getValue(id))
+  //   },
+  //   enableHiding: false,
+  //   enableSorting: false,
+  // },
+  // {
+  //   accessorKey: 'role',
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title='Role' />
+  //   ),
+  //   cell: ({ row }) => {
+  //     const { role } = row.original
+  //     const userType = roles.find(({ value }) => value === role)
 
-      if (!userType) {
-        return null
-      }
+  //     if (!userType) {
+  //       return null
+  //     }
 
-      return (
-        <div className='flex items-center gap-x-2'>
-          {userType.icon && (
-            <userType.icon size={16} className='text-muted-foreground' />
-          )}
-          <span className='text-sm capitalize'>{row.getValue('role')}</span>
-        </div>
-      )
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
-    enableSorting: false,
-    enableHiding: false,
-  },
+  //     return (
+  //       <div className='flex items-center gap-x-2'>
+  //         {userType.icon && (
+  //           <userType.icon size={16} className='text-muted-foreground' />
+  //         )}
+  //         <span className='text-sm capitalize'>{row.getValue('role')}</span>
+  //       </div>
+  //     )
+  //   },
+  //   filterFn: (row, id, value) => {
+  //     return value.includes(row.getValue(id))
+  //   },
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
     id: 'actions',
     cell: DataTableRowActions,

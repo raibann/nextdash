@@ -27,7 +27,7 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from '@/components/ui/input-group'
-import { createRole, Role, updateRole } from '@/server/actions/role-action'
+import { createRole, Role, updateRole } from '@/server/actions/role-actions'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from 'sonner'
 import { getQueryClient } from '@/lib/react-query'

@@ -5,7 +5,7 @@ import { useRole } from './roles-provider'
 import { RolesMutateDrawer } from './roles-mutate-drawer'
 import RolesPermissionsDialog from './roles-permissions-dialog'
 import { useTransition } from 'react'
-import { deleteRole } from '@/server/actions/role-action'
+import { deleteRole } from '@/server/actions/role-actions'
 import { toast } from 'sonner'
 import { getQueryClient } from '@/lib/react-query'
 

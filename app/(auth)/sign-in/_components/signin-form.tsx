@@ -61,7 +61,7 @@ export default function SignInForm({ query }: { query?: string }) {
 
     if (res.data != null) {
       toast.success('Successfully signed in!')
-      redirect(!!query ? query : '/')
+      redirect(!!query ? query : '/dashboard')
     }
   }
 

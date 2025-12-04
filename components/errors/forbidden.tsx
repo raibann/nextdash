@@ -1,9 +1,11 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 export function ForbiddenError() {
   const router = useRouter()
+  const pathname = usePathname()
+  const homeUrl = pathname === '/' ? '/dashboard' : '/'
   return (
     <div className='h-svh'>
       <div className='m-auto flex h-full w-full flex-col items-center justify-center gap-2'>
@@ -17,7 +19,7 @@ export function ForbiddenError() {
           <Button variant='outline' onClick={() => router.back()}>
             Go Back
           </Button>
-          <Button onClick={() => router.push('/')}>Back to Home</Button>
+          <Button onClick={() => router.push(homeUrl)}>Back to Home</Button>
         </div>
       </div>
     </div>

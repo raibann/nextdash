@@ -1,7 +1,13 @@
 'use server'
 
+import { db } from '@/db'
+import { user } from '@/db/schema'
 import { auth } from '@/lib/auth'
+import { throwClientError } from '@/lib/error-utils'
+import { desc, ilike, or, sql } from 'drizzle-orm'
 import { headers } from 'next/headers'
+
+export type User = typeof user.$inferSelect
 
 const getSession = async () => {
   const session = await auth.api.getSession({
@@ -51,4 +57,41 @@ const signInWithEmail = async (req: UserReq.SingInWithEmail) => {
   }
 }
 
-export { getSession, signUpWithEmail, signInWithEmail }
+const listUser = async ({
+  pageIndex = 0, //initial page index
+  pageSize = 10,
+  search,
+}: {
+  pageIndex: number
+  pageSize: number
+  search?: string
+}) => {
+  try {
+    const where = search
+      ? or(ilike(user.name, `%${search}%`), ilike(user.id, `%${search}%`))
+      : undefined
+    const data = await db.query.user.findMany({
+      where,
+      limit: pageSize,
+      offset: pageIndex * pageSize,
+      orderBy: [desc(user.createdAt)],
+    })
+
+    // Count total for TanStack Table pagination
+    const total = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(user)
+      .where(where ?? sql`true`)
+
+    return {
+      data: data,
+      rowCount: total[0].count, // Total number of users matching any filters
+      pageIndex: pageIndex,
+      pageSize: pageSize,
+    }
+  } catch (error) {
+    throwClientError(error)
+  }
+}
+
+export { getSession, signUpWithEmail, signInWithEmail, listUser }

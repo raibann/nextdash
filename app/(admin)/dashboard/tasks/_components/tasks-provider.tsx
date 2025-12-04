@@ -1,9 +1,9 @@
 'use client'
 import React, { useState } from 'react'
 import useDialogState from '@/hooks/use-dialog-state'
-import { type Task } from '../_data/schema'
+import type { Task } from '@/server/actions/task-actions'
 
-type TasksDialogType = 'create' | 'update' | 'delete' | 'import'
+type TasksDialogType = 'create' | 'update' | 'delete' | 'import' | 'settings'
 
 type TasksContextType = {
   open: TasksDialogType | null

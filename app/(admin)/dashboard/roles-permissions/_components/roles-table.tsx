@@ -22,23 +22,29 @@ import {
   flexRender,
   PaginationState,
   OnChangeFn,
+  ColumnFiltersState,
 } from '@tanstack/react-table'
-import { SetStateAction, Dispatch, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { RoleTableBulkActions } from './roles-table-bulk-actions'
 import { rolesColumns as columns } from './roles-columns'
-import { Role } from '@/server/actions/role-action'
+import { Role } from '@/server/actions/role-actions'
 import { Skeleton } from '@/components/ui/skeleton'
 
 type DataTableProps = {
   data: Role[]
   rowCount: number
-  pagination?: PaginationState
-  setPagination: Dispatch<SetStateAction<PaginationState>>
   loading: boolean
   error: Error | null
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setGlobalFilter: OnChangeFn<any>
+  pagination: PaginationState
+  onPaginationChange: OnChangeFn<PaginationState>
   globalFilter?: string
+  onGlobalFilterChange?: OnChangeFn<string>
+  columnFilters: ColumnFiltersState
+  onColumnFiltersChange: OnChangeFn<ColumnFiltersState>
+  ensurePageInRange: (
+    pageCount: number,
+    opts?: { resetTo?: 'first' | 'last' }
+  ) => void
 }
 
 const RolesTable = ({
@@ -47,9 +53,12 @@ const RolesTable = ({
   loading,
   error,
   pagination,
-  setPagination,
+  onPaginationChange,
   globalFilter,
-  setGlobalFilter,
+  onGlobalFilterChange,
+  columnFilters,
+  onColumnFiltersChange,
+  ensurePageInRange,
 }: DataTableProps) => {
   // Local UI-only states
   const [rowSelection, setRowSelection] = useState({})
@@ -66,18 +75,27 @@ const RolesTable = ({
       rowSelection,
       columnVisibility,
       globalFilter,
+      columnFilters,
     },
     // pagination
     rowCount: rowCount,
     manualPagination: true,
-    onPaginationChange: setPagination,
+    onPaginationChange: onPaginationChange,
     // filter
     manualFiltering: true,
-    onGlobalFilterChange: setGlobalFilter,
+    onGlobalFilterChange: onGlobalFilterChange,
+    onColumnFiltersChange: onColumnFiltersChange,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
+    globalFilterFn: (row, _columnId, filterValue) => {
+      const id = String(row.getValue('id')).toLowerCase()
+      const name = String(row.getValue('name')).toLowerCase()
+      const searchValue = String(filterValue).toLowerCase()
+
+      return id.includes(searchValue) || name.includes(searchValue)
+    },
     getPaginationRowModel: getPaginationRowModel(),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -85,6 +103,14 @@ const RolesTable = ({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
+
+  // Ensure page is in range when page count changes
+  const pageCount = table.getPageCount()
+  useEffect(() => {
+    if (pageCount > 0) {
+      ensurePageInRange(pageCount)
+    }
+  }, [pageCount, ensurePageInRange])
 
   return (
     <div

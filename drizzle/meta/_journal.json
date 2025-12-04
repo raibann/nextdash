@@ -85,6 +85,13 @@
       "when": 1764667212493,
       "tag": "20251202092012_update_user_role",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1764865596846,
+      "tag": "20251204162636_create_task_table",
+      "breakpoints": true
     }
   ]
 }

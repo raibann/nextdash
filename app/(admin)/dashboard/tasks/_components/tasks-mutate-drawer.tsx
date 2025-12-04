@@ -1,19 +1,10 @@
 'use client'
+
 import { z } from 'zod'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { showSubmittedData } from '@/lib/show-submitted-data'
 import { Button } from '@/components/ui/button'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
   Sheet,
   SheetClose,
@@ -23,8 +14,27 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { Spinner } from '@/components/ui/spinner'
 import { SelectDropdown } from '@/components/select-dropdown'
-import { type Task } from '../_data/schema'
+import { queryOptions, useQueries } from '@tanstack/react-query'
+import {
+  listTaskPriority,
+  listTaskLabel,
+  listTaskStatus,
+  TaskStatus,
+  TaskPriority,
+  TaskLabel,
+  Task,
+} from '@/server/actions/task-actions'
+import { Textarea } from '@/components/ui/textarea'
+import { useEffect } from 'react'
 
 type TaskMutateDrawerProps = {
   open: boolean
@@ -37,6 +47,7 @@ const formSchema = z.object({
   status: z.string().min(1, 'Please select a status.'),
   label: z.string().min(1, 'Please select a label.'),
   priority: z.string().min(1, 'Please choose a priority.'),
+  desc: z.string().optional(),
 })
 type TaskForm = z.infer<typeof formSchema>
 
@@ -47,17 +58,72 @@ export function TasksMutateDrawer({
 }: TaskMutateDrawerProps) {
   const isUpdate = !!currentRow
 
+  // Multiple queries for status, priority, label
+  const [taskStatusQuery, taskPriorityQuery, taskLabelQuery] = useQueries({
+    queries: [
+      queryOptions({
+        queryKey: ['task-status'],
+        queryFn: () => listTaskStatus(),
+      }),
+      queryOptions({
+        queryKey: ['task-priority'],
+        queryFn: () => listTaskPriority(),
+      }),
+      queryOptions({
+        queryKey: ['task-label'],
+        queryFn: () => listTaskLabel(),
+      }),
+    ],
+  })
+
   const form = useForm<TaskForm>({
+    mode: 'onChange',
     resolver: zodResolver(formSchema),
-    defaultValues: currentRow ?? {
-      title: '',
-      status: '',
-      label: '',
-      priority: '',
+    defaultValues: {
+      title: currentRow?.title ?? '',
+      status: currentRow?.status ?? '',
+      label: currentRow?.label ?? '',
+      priority: currentRow?.priority ?? '',
+      desc: currentRow?.desc ?? '',
     },
   })
 
-  const onSubmit = (data: TaskForm) => {
+  // Reset form when currentRow changes
+  useEffect(() => {
+    form.reset({
+      title: currentRow?.title ?? '',
+      status: currentRow?.status ?? '',
+      label: currentRow?.label ?? '',
+      priority: currentRow?.priority ?? '',
+      desc: currentRow?.desc ?? '',
+    })
+  }, [currentRow, form])
+
+  // Map query results to dropdown items
+  const statusItems =
+    taskStatusQuery.data?.data?.map((s: TaskStatus) => ({
+      label: s.status,
+      value: s.id,
+    })) ?? []
+
+  const priorityItems =
+    taskPriorityQuery.data?.data?.map((p: TaskPriority) => ({
+      label: p.priority,
+      value: p.id,
+    })) ?? []
+
+  const labelItems =
+    taskLabelQuery.data?.data?.map((l: TaskLabel) => ({
+      label: l.label,
+      value: l.id,
+    })) ?? []
+
+  const isLoading =
+    taskStatusQuery.isLoading ||
+    taskPriorityQuery.isLoading ||
+    taskLabelQuery.isLoading
+
+  const onSubmit = async (data: TaskForm) => {
     // do something with the form data
     onOpenChange(false)
     form.reset()
@@ -74,137 +140,169 @@ export function TasksMutateDrawer({
     >
       <SheetContent className='flex flex-col'>
         <SheetHeader className='text-start'>
-          <SheetTitle>{isUpdate ? 'Update' : 'Create'} Task</SheetTitle>
+          <SheetTitle>{isUpdate ? 'Update Task' : 'Create Task'}</SheetTitle>
           <SheetDescription>
             {isUpdate
-              ? 'Update the task by providing necessary info.'
-              : 'Add a new task by providing necessary info.'}
-            Click save when you&apos;re done.
+              ? 'Update the task information below.'
+              : 'Create a new task using the fields below.'}
           </SheetDescription>
         </SheetHeader>
-        <Form {...form}>
+
+        <FormProvider {...form}>
           <form
             id='tasks-form'
             onSubmit={form.handleSubmit(onSubmit)}
             className='flex-1 space-y-6 overflow-y-auto px-4'
           >
-            <FormField
-              control={form.control}
-              name='title'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder='Enter a title' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='status'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <SelectDropdown
-                    defaultValue={field.value}
-                    onValueChange={field.onChange}
-                    placeholder='Select dropdown'
-                    items={[
-                      { label: 'In Progress', value: 'in progress' },
-                      { label: 'Backlog', value: 'backlog' },
-                      { label: 'Todo', value: 'todo' },
-                      { label: 'Canceled', value: 'canceled' },
-                      { label: 'Done', value: 'done' },
-                    ]}
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='label'
-              render={({ field }) => (
-                <FormItem className='relative'>
-                  <FormLabel>Label</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
+            <FieldGroup>
+              {/* Title */}
+              <Controller
+                name='title'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor='task-title'>
+                      Title <span className='text-destructive'>*</span>
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id='task-title'
+                      placeholder='Enter a title'
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              {/* Status */}
+              <Controller
+                name='status'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor='task-status'>
+                      Status <span className='text-destructive'>*</span>
+                    </FieldLabel>
+                    <SelectDropdown
+                      disabled={taskStatusQuery.isLoading}
                       defaultValue={field.value}
-                      className='flex flex-col space-y-1'
-                    >
-                      <FormItem className='flex items-center'>
-                        <FormControl>
-                          <RadioGroupItem value='documentation' />
-                        </FormControl>
-                        <FormLabel className='font-normal'>
-                          Documentation
-                        </FormLabel>
-                      </FormItem>
-                      <FormItem className='flex items-center'>
-                        <FormControl>
-                          <RadioGroupItem value='feature' />
-                        </FormControl>
-                        <FormLabel className='font-normal'>Feature</FormLabel>
-                      </FormItem>
-                      <FormItem className='flex items-center'>
-                        <FormControl>
-                          <RadioGroupItem value='bug' />
-                        </FormControl>
-                        <FormLabel className='font-normal'>Bug</FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='priority'
-              render={({ field }) => (
-                <FormItem className='relative'>
-                  <FormLabel>Priority</FormLabel>
-                  <FormControl>
-                    <RadioGroup
                       onValueChange={field.onChange}
+                      placeholder={
+                        taskStatusQuery.isLoading
+                          ? 'Loading...'
+                          : 'Select status'
+                      }
+                      items={statusItems}
+                      isControlled={true}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              {/* Label */}
+              <Controller
+                name='label'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor='task-label'>
+                      Label <span className='text-destructive'>*</span>
+                    </FieldLabel>
+                    <SelectDropdown
+                      disabled={taskLabelQuery.isLoading}
                       defaultValue={field.value}
-                      className='flex flex-col space-y-1'
-                    >
-                      <FormItem className='flex items-center'>
-                        <FormControl>
-                          <RadioGroupItem value='high' />
-                        </FormControl>
-                        <FormLabel className='font-normal'>High</FormLabel>
-                      </FormItem>
-                      <FormItem className='flex items-center'>
-                        <FormControl>
-                          <RadioGroupItem value='medium' />
-                        </FormControl>
-                        <FormLabel className='font-normal'>Medium</FormLabel>
-                      </FormItem>
-                      <FormItem className='flex items-center'>
-                        <FormControl>
-                          <RadioGroupItem value='low' />
-                        </FormControl>
-                        <FormLabel className='font-normal'>Low</FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                      onValueChange={field.onChange}
+                      placeholder={
+                        taskLabelQuery.isLoading ? 'Loading...' : 'Select label'
+                      }
+                      items={labelItems}
+                      isControlled={true}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              {/* Priority */}
+              <Controller
+                name='priority'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor='task-priority'>
+                      Priority <span className='text-destructive'>*</span>
+                    </FieldLabel>
+                    <SelectDropdown
+                      disabled={taskPriorityQuery.isLoading}
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      placeholder={
+                        taskPriorityQuery.isLoading
+                          ? 'Loading...'
+                          : 'Select priority'
+                      }
+                      items={priorityItems}
+                      isControlled={true}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              {/* Description */}
+              <Controller
+                name='desc'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor='task-desc'>Description</FieldLabel>
+                    <Textarea
+                      {...field}
+                      id='task-desc'
+                      placeholder='Enter a description'
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </FieldGroup>
           </form>
-        </Form>
+        </FormProvider>
+
         <SheetFooter className='gap-2'>
           <SheetClose asChild>
             <Button variant='outline'>Close</Button>
           </SheetClose>
-          <Button form='tasks-form' type='submit'>
-            Save changes
+          <Button
+            type='submit'
+            form='tasks-form'
+            disabled={
+              !form.formState.isValid ||
+              form.formState.isSubmitting ||
+              isLoading
+            }
+          >
+            {form.formState.isSubmitting || isLoading ? (
+              <>
+                <Spinner />
+                Saving
+              </>
+            ) : (
+              <>{isUpdate ? 'Save changes' : 'Save'}</>
+            )}
           </Button>
         </SheetFooter>
       </SheetContent>

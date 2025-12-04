@@ -33,7 +33,7 @@ import {
   createPermission,
   Permission,
   updatePermission,
-} from '@/server/actions/permission-action'
+} from '@/server/actions/permission-actions'
 
 type PermissionsMutateDrawerProps = {
   open: boolean

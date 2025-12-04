@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import ClipboardButton from '@/components/clipboard-btn'
-import { Permission } from '@/server/actions/permission-action'
+import { Permission } from '@/server/actions/permission-actions'
 
 export const permissionColumns: ColumnDef<Permission>[] = [
   {

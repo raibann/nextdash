@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { usePermission } from './permissions-provider'
-import { Permission } from '@/server/actions/permission-action'
+import { Permission } from '@/server/actions/permission-actions'
 // import { useTasks } from '../../tasks/_components/tasks-provider'
 
 type DataTableRowActionsProps = {

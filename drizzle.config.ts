@@ -18,13 +18,6 @@ export default defineConfig({
     table: '__drizzle_migrations__',
     schema: 'public',
   },
-  entities: {
-    roles: {
-      provider: '',
-      exclude: [],
-      include: [],
-    },
-  },
   breakpoints: true,
   strict: true,
   verbose: true,

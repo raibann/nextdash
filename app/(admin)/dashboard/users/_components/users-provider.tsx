@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import useDialogState from '@/hooks/use-dialog-state'
-import { type User } from '../_data/schema'
+import { User } from '@/server/actions/user-actions'
 
 type UsersDialogType = 'invite' | 'add' | 'edit' | 'delete'
 

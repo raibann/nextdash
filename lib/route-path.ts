@@ -6,8 +6,8 @@ export const ROUTE_PATHS = {
       chats: '/dashboard/chats',
       helpCenter: '/dashboard/help-center',
       rolePermissions: {
-        root: '/dashboard/role-permissions',
-        permissions: '/dashboard/role-permissions/permissions',
+        root: '/dashboard/roles-permissions',
+        permissions: '/dashboard/roles-permissions/permissions',
       },
       settings: {
         root: '/dashboard/settings',

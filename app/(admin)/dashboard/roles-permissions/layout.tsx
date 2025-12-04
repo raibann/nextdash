@@ -6,6 +6,7 @@ import { Header } from '@/components/layout/header'
 import React from 'react'
 import type { Metadata } from 'next'
 import { Search } from '@/components/search'
+import { RoleProvider } from './_components/roles-provider'
 
 export const metadata: Metadata = {
   title: 'Roles & Permissions',
@@ -27,7 +28,7 @@ const topNav = [
 
 const RolePermissionLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <>
+    <RoleProvider>
       <Header fixed>
         <TopNav links={topNav} />
         <div className='ms-auto flex items-center space-x-4'>
@@ -39,7 +40,7 @@ const RolePermissionLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
       </Header>
       {children}
-    </>
+    </RoleProvider>
   )
 }
 
