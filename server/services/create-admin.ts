@@ -18,7 +18,6 @@ export async function createAdmin() {
           email: email, // required
           password: password, // required
           name: 'Admin', // required
-          role: 'admin',
         },
       })
       console.log('Admin user created')

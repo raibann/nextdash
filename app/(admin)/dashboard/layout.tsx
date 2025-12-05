@@ -1,8 +1,9 @@
 import { AuthenticatedLayout } from '@/components/layout/authenticated-layout'
 import { PropsWithChildren } from 'react'
-import { getSession } from '@/server/actions/user-actions'
 import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
+import { auth } from '../../../lib/auth'
+import { headers } from 'next/headers'
 
 export const metadata: Metadata = {
   title: {
@@ -12,10 +13,12 @@ export const metadata: Metadata = {
 }
 
 const DashboardLayout = async ({ children }: PropsWithChildren) => {
-  const authed = await getSession()
+  const authed = await auth.api.getSession({
+    headers: await headers(),
+  })
 
   if (!authed) {
-    redirect('/')
+    redirect('/sign-in')
   }
 
   return AuthenticatedLayout({ children })

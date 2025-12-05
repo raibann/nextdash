@@ -9,13 +9,6 @@ import { headers } from 'next/headers'
 
 export type User = typeof user.$inferSelect
 
-const getSession = async () => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-  return session
-}
-
 const signUpWithEmail = async (req: UserReq.SingUpWithEmail) => {
   try {
     const data = await auth.api.signUpEmail({
@@ -94,4 +87,4 @@ const listUser = async ({
   }
 }
 
-export { getSession, signUpWithEmail, signInWithEmail, listUser }
+export { signUpWithEmail, signInWithEmail, listUser }

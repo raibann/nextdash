@@ -13,18 +13,17 @@ import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
 // import { TeamSwitcher } from './team-switcher'
 import CompanyHeader from './company-header'
-import { useQuery } from '@tanstack/react-query'
-import { getSession } from '@/server/actions/user-actions'
+import { useSession } from '@/lib/auth-client'
+import { GeneralError } from '../errors/general-error'
 
 export function AppSidebar() {
   const { collapsible, variant } = useLayout()
 
-  const { data } = useQuery({
-    queryKey: ['user-session'],
-    queryFn: getSession,
-  })
+  const { data, isPending, error } = useSession()
 
-  if (!data) return null
+  if (error) return <GeneralError message='dashboard' />
+
+  if (!data?.user) return null
 
   return (
     <Sidebar collapsible={collapsible} variant={variant}>
@@ -43,6 +42,7 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <NavUser
+          loading={isPending}
           user={{
             avatar: data.user.image || '',
             email: data.user.email,

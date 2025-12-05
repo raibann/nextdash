@@ -5,92 +5,22 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1764039764394,
-      "tag": "20251125030244_motionless_cannonball",
+      "when": 1764912207787,
+      "tag": "20251205052327_init",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1764059757185,
-      "tag": "20251125083557_stale_paibok",
+      "when": 1764915687234,
+      "tag": "20251205062127_update_user_role",
       "breakpoints": true
     },
     {
       "idx": 2,
       "version": "7",
-      "when": 1764303082809,
-      "tag": "20251128041122_good_wraith",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1764303101229,
-      "tag": "20251128041141_bored_puff_adder",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1764304940276,
-      "tag": "20251128044220_colossal_malcolm_colcord",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1764306518304,
-      "tag": "20251128050838_modify_permission-field",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1764318354072,
-      "tag": "20251128082554_add_permission-field",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1764576504213,
-      "tag": "20251201080824_add_page",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1764576668828,
-      "tag": "20251201081108_update_relation_page",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1764577921239,
-      "tag": "20251201083201_update_user_to_role_base",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "7",
-      "when": 1764664059066,
-      "tag": "20251202082739_update_role_id_and_setting",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "7",
-      "when": 1764667212493,
-      "tag": "20251202092012_update_user_role",
-      "breakpoints": true
-    },
-    {
-      "idx": 12,
-      "version": "7",
-      "when": 1764865596846,
-      "tag": "20251204162636_create_task_table",
+      "when": 1764916245041,
+      "tag": "20251205063045_update_to_organization",
       "breakpoints": true
     }
   ]
