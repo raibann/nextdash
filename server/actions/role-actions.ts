@@ -20,7 +20,7 @@ const createRole = async (body: CreateRole) => {
     const data = await db.insert(role).values(body).returning()
     return { data: data[0], error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 const updateRole = async (body: UpdateRole) => {

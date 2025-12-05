@@ -2,9 +2,8 @@ import { type ColumnDef } from '@tanstack/react-table'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DataTableColumnHeader } from '@/components/data-table'
-import { labels, priorities, statuses } from '../_data/data'
 import type { Task } from '@/server/actions/task-actions'
-import { DataTableRowActions } from './data-table-row-actions'
+import { DataTableRowActions } from './tasks-table-row-actions'
 
 export const tasksColumns: ColumnDef<Task>[] = [
   {
@@ -47,11 +46,9 @@ export const tasksColumns: ColumnDef<Task>[] = [
     ),
     meta: { className: 'ps-1', tdClassName: 'ps-4' },
     cell: ({ row }) => {
-      const label = labels.find((label) => label.value === row.original.label)
-
       return (
         <div className='flex space-x-2'>
-          {label && <Badge variant='outline'>{label.label}</Badge>}
+          <Badge variant='outline'>{row.original.label}</Badge>
           <span className='max-w-32 truncate font-medium sm:max-w-72 md:max-w-124'>
             {row.getValue('title')}
           </span>
@@ -66,20 +63,9 @@ export const tasksColumns: ColumnDef<Task>[] = [
     ),
     meta: { className: 'ps-1', tdClassName: 'ps-4' },
     cell: ({ row }) => {
-      const status = statuses.find(
-        (status) => status.value === row.getValue('status')
-      )
-
-      if (!status) {
-        return null
-      }
-
       return (
         <div className='flex w-[100px] items-center gap-2'>
-          {status.icon && (
-            <status.icon className='text-muted-foreground size-4' />
-          )}
-          <span>{status.label}</span>
+          <span>{row.original.status}</span>
         </div>
       )
     },
@@ -94,21 +80,8 @@ export const tasksColumns: ColumnDef<Task>[] = [
     ),
     meta: { className: 'ps-1', tdClassName: 'ps-3' },
     cell: ({ row }) => {
-      const priority = priorities.find(
-        (priority) => priority.value === row.getValue('priority')
-      )
-
-      if (!priority) {
-        return null
-      }
-
       return (
-        <div className='flex items-center gap-2'>
-          {priority.icon && (
-            <priority.icon className='text-muted-foreground size-4' />
-          )}
-          <span>{priority.label}</span>
-        </div>
+        <div className='flex items-center gap-2'>{row.original.priority}</div>
       )
     },
     filterFn: (row, id, value) => {
@@ -117,6 +90,6 @@ export const tasksColumns: ColumnDef<Task>[] = [
   },
   {
     id: 'actions',
-    cell: ({ row }) => <DataTableRowActions row={row} />,
+    cell: DataTableRowActions,
   },
 ]

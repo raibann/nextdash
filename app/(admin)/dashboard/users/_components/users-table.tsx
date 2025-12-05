@@ -1,9 +1,10 @@
-import { Dispatch, SetStateAction, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   OnChangeFn,
   PaginationState,
   type SortingState,
   type VisibilityState,
+  type ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
@@ -23,7 +24,6 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
-import { roles } from '../_data/data'
 import { DataTableBulkActions } from './data-table-bulk-actions'
 import { usersColumns as columns } from './users-columns'
 import { User } from '@/server/actions/user-actions'
@@ -32,13 +32,18 @@ import { Skeleton } from '@/components/ui/skeleton'
 type DataTableProps = {
   data: User[]
   rowCount: number
-  pagination?: PaginationState
-  setPagination: Dispatch<SetStateAction<PaginationState>>
   loading: boolean
   error: Error | null
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setGlobalFilter: OnChangeFn<any>
+  pagination: PaginationState
+  onPaginationChange: OnChangeFn<PaginationState>
   globalFilter?: string
+  onGlobalFilterChange?: OnChangeFn<string>
+  columnFilters: ColumnFiltersState
+  onColumnFiltersChange: OnChangeFn<ColumnFiltersState>
+  ensurePageInRange: (
+    pageCount: number,
+    opts?: { resetTo?: 'first' | 'last' }
+  ) => void
 }
 
 export function UsersTable({
@@ -47,38 +52,17 @@ export function UsersTable({
   loading,
   error,
   pagination,
-  setPagination,
+  onPaginationChange,
   globalFilter,
-  setGlobalFilter,
+  onGlobalFilterChange,
+  columnFilters,
+  onColumnFiltersChange,
+  ensurePageInRange,
 }: DataTableProps) {
   // Local UI-only states
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
-
-  // Local state management for table (uncomment to use local-only state, not synced with URL)
-  // const [columnFilters, onColumnFiltersChange] = useState<ColumnFiltersState>([])
-  // const [pagination, onPaginationChange] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 })
-
-  // Synced with URL states (keys/defaults mirror users route search schema)
-  // const {
-  //   columnFilters,
-  //   onColumnFiltersChange,
-  //   pagination,
-  //   onPaginationChange,
-  //   ensurePageInRange,
-  // } = useTableUrlState({
-  //   search,
-  //   navigate,
-  //   pagination: { defaultPage: 1, defaultPageSize: 10 },
-  //   globalFilter: { enabled: false },
-  //   columnFilters: [
-  //     // username per-column text filter
-  //     { columnId: 'username', searchKey: 'username', type: 'string' },
-  //     { columnId: 'status', searchKey: 'status', type: 'array' },
-  //     { columnId: 'role', searchKey: 'role', type: 'array' },
-  //   ],
-  // })
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -88,23 +72,34 @@ export function UsersTable({
       sorting,
       pagination,
       rowSelection,
-      // columnFilters,
       columnVisibility,
       globalFilter,
+      columnFilters,
     },
-    enableRowSelection: true,
     // pagination
     rowCount: rowCount,
     manualPagination: true,
-    onPaginationChange: setPagination,
+    onPaginationChange: onPaginationChange,
     // filter
     manualFiltering: true,
-    onGlobalFilterChange: setGlobalFilter,
-    // onPaginationChange,
-    // onColumnFiltersChange,
+    onGlobalFilterChange: onGlobalFilterChange,
+    onColumnFiltersChange: onColumnFiltersChange,
+    enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
+    globalFilterFn: (row, _columnId, filterValue) => {
+      const id = String(row.getValue('id')).toLowerCase()
+      const name = String(row.getValue('name')).toLowerCase()
+      const email = String(row.getValue('email')).toLowerCase()
+      const searchValue = String(filterValue).toLowerCase()
+
+      return (
+        id.includes(searchValue) ||
+        name.includes(searchValue) ||
+        email.includes(searchValue)
+      )
+    },
     getPaginationRowModel: getPaginationRowModel(),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -113,9 +108,13 @@ export function UsersTable({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
-  // useEffect(() => {
-  //   ensurePageInRange(table.getPageCount())
-  // }, [table, ensurePageInRange])
+  // Ensure page is in range when page count changes
+  const pageCount = table.getPageCount()
+  useEffect(() => {
+    if (pageCount > 0) {
+      ensurePageInRange(pageCount)
+    }
+  }, [pageCount, ensurePageInRange])
 
   return (
     <div

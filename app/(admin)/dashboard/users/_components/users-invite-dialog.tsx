@@ -25,7 +25,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { SelectDropdown } from '@/components/select-dropdown'
-import { roles } from '../_data/data'
 
 const formSchema = z.object({
   email: z.email({
@@ -109,10 +108,7 @@ export function UsersInviteDialog({
                     defaultValue={field.value}
                     onValueChange={field.onChange}
                     placeholder='Select a role'
-                    items={roles.map(({ label, value }) => ({
-                      label,
-                      value,
-                    }))}
+                    items={[]}
                   />
                   <FormMessage />
                 </FormItem>

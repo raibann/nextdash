@@ -17,7 +17,11 @@ export const task = pgTable('task', {
   desc: text('desc'),
   label: varchar('label', { length: 50 }).notNull(),
   status: varchar('status', { length: 50 }).notNull(),
-  priority: varchar('priority', { length: 50 }).notNull(),
+  priority: varchar('priority', { length: 50 })
+    .notNull()
+    .references((): AnyPgColumn => taskProperty.value, {
+      onDelete: 'set null',
+    }),
   assignedTo: text('assigned_to').references((): AnyPgColumn => user.id, {
     onDelete: 'set null',
   }), // user who is assigned to the task and use comma , to assign multiple users
@@ -35,42 +39,19 @@ export const task = pgTable('task', {
     .notNull(),
 })
 
-export const taskStatus = pgTable('task_status', {
+export const taskProperty = pgTable('task_property', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => createId()),
-  status: varchar('status', { length: 50 }).notNull(),
-  icon: varchar('icon', { length: 50 }),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at')
-    .$onUpdate(() => new Date())
-    .notNull(),
-})
-
-export const taskPriority = pgTable('task_priority', {
-  id: text('id')
-    .primaryKey()
-    .$defaultFn(() => createId()),
-  priority: varchar('priority', { length: 50 }).notNull(),
-  icon: varchar('icon', { length: 50 }),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at')
-    .$onUpdate(() => new Date())
-    .notNull(),
-})
-
-export const taskLabel = pgTable('task_label', {
-  id: text('id')
-    .primaryKey()
-    .$defaultFn(() => createId()),
+  field: varchar('field', { length: 100 }).notNull(),
   label: varchar('label', { length: 50 }).notNull(),
-  icon: varchar('icon', { length: 50 }),
-  variant: varchar('variant', { length: 50 }).notNull(),
+  value: varchar('value', { length: 50 }).notNull().unique(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')
     .$onUpdate(() => new Date())
     .notNull(),
 })
+
 export const taskRelations = relations(task, ({ one }) => ({
   user: one(user, {
     fields: [task.assignedTo],

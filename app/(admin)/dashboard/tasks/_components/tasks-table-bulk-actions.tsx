@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
@@ -17,8 +16,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { DataTableBulkActions as BulkActionsToolbar } from '@/components/data-table'
-import { priorities, statuses } from '../_data/data'
-import { type Task } from '../_data/schema'
+import { type Task } from '@/server/actions/task-actions'
 import { TasksMultiDeleteDialog } from './tasks-multi-delete-dialog'
 
 type DataTableBulkActionsProps<TData> = {
@@ -31,31 +29,31 @@ export function DataTableBulkActions<TData>({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const selectedRows = table.getFilteredSelectedRowModel().rows
 
-  const handleBulkStatusChange = (status: string) => {
-    const selectedTasks = selectedRows.map((row) => row.original as Task)
-    toast.promise(sleep(2000), {
-      loading: 'Updating status...',
-      success: () => {
-        table.resetRowSelection()
-        return `Status updated to "${status}" for ${selectedTasks.length} task${selectedTasks.length > 1 ? 's' : ''}.`
-      },
-      error: 'Error',
-    })
-    table.resetRowSelection()
-  }
+  // const handleBulkStatusChange = (status: string) => {
+  //   const selectedTasks = selectedRows.map((row) => row.original as Task)
+  //   toast.promise(sleep(2000), {
+  //     loading: 'Updating status...',
+  //     success: () => {
+  //       table.resetRowSelection()
+  //       return `Status updated to "${status}" for ${selectedTasks.length} task${selectedTasks.length > 1 ? 's' : ''}.`
+  //     },
+  //     error: 'Error',
+  //   })
+  //   table.resetRowSelection()
+  // }
 
-  const handleBulkPriorityChange = (priority: string) => {
-    const selectedTasks = selectedRows.map((row) => row.original as Task)
-    toast.promise(sleep(2000), {
-      loading: 'Updating priority...',
-      success: () => {
-        table.resetRowSelection()
-        return `Priority updated to "${priority}" for ${selectedTasks.length} task${selectedTasks.length > 1 ? 's' : ''}.`
-      },
-      error: 'Error',
-    })
-    table.resetRowSelection()
-  }
+  // const handleBulkPriorityChange = (priority: string) => {
+  //   const selectedTasks = selectedRows.map((row) => row.original as Task)
+  //   toast.promise(sleep(2000), {
+  //     loading: 'Updating priority...',
+  //     success: () => {
+  //       table.resetRowSelection()
+  //       return `Priority updated to "${priority}" for ${selectedTasks.length} task${selectedTasks.length > 1 ? 's' : ''}.`
+  //     },
+  //     error: 'Error',
+  //   })
+  //   table.resetRowSelection()
+  // }
 
   const handleBulkExport = () => {
     const selectedTasks = selectedRows.map((row) => row.original as Task)
@@ -94,7 +92,7 @@ export function DataTableBulkActions<TData>({
             </TooltipContent>
           </Tooltip>
           <DropdownMenuContent sideOffset={14}>
-            {statuses.map((status) => (
+            {/* {statuses.map((status) => (
               <DropdownMenuItem
                 key={status.value}
                 defaultValue={status.value}
@@ -105,7 +103,7 @@ export function DataTableBulkActions<TData>({
                 )}
                 {status.label}
               </DropdownMenuItem>
-            ))}
+            ))} */}
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -130,7 +128,7 @@ export function DataTableBulkActions<TData>({
             </TooltipContent>
           </Tooltip>
           <DropdownMenuContent sideOffset={14}>
-            {priorities.map((priority) => (
+            {/* {priorities.map((priority) => (
               <DropdownMenuItem
                 key={priority.value}
                 defaultValue={priority.value}
@@ -141,7 +139,7 @@ export function DataTableBulkActions<TData>({
                 )}
                 {priority.label}
               </DropdownMenuItem>
-            ))}
+            ))} */}
           </DropdownMenuContent>
         </DropdownMenu>
 

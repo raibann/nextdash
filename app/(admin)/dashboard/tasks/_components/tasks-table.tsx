@@ -25,9 +25,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
-import { priorities, statuses } from '../_data/data'
 import type { Task } from '@/server/actions/task-actions'
-import { DataTableBulkActions } from './data-table-bulk-actions'
+import { DataTableBulkActions } from './tasks-table-bulk-actions'
 import { tasksColumns as columns } from './tasks-columns'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -127,12 +126,12 @@ export function TasksTable({
           {
             columnId: 'status',
             title: 'Status',
-            options: statuses,
+            options: [],
           },
           {
             columnId: 'priority',
             title: 'Priority',
-            options: priorities,
+            options: [],
           },
         ]}
       />

@@ -20,7 +20,7 @@ const createPermission = async (body: CreatePermission) => {
     const data = await db.insert(permission).values(body).returning()
     return { data: data, error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 const updatePermission = async (body: UpdateRole) => {
@@ -51,7 +51,7 @@ const updatePermission = async (body: UpdateRole) => {
 
     return { data: data[0], error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 
@@ -60,7 +60,7 @@ const deletePermission = async (id: string) => {
     const data = await db.delete(permission).where(eq(permission.id, id))
     return { data: data, error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 const listPermission = async ({

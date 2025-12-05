@@ -4,6 +4,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog'
 import { TasksImportDialog } from './tasks-import-dialog'
 import { TasksMutateDrawer } from './tasks-mutate-drawer'
 import { useTasks } from './tasks-provider'
+import TasksSettingDialog from './tasks-setting-dialog'
 
 export function TasksDialogs() {
   const { open, setOpen, currentRow, setCurrentRow } = useTasks()
@@ -19,6 +20,12 @@ export function TasksDialogs() {
         key='tasks-import'
         open={open === 'import'}
         onOpenChange={() => setOpen('import')}
+      />
+
+      <TasksSettingDialog
+        key='tasks-settings'
+        open={open === 'settings'}
+        onOpenChange={() => setOpen('settings')}
       />
 
       {currentRow && (

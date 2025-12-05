@@ -31,7 +31,7 @@ const createTask = async (body: CreateTask) => {
     const data = await db.insert(task).values(body).returning()
     return { data: data[0], error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 const updateTask = async (body: UpdateTask) => {
@@ -125,7 +125,7 @@ const listTaskStatus = async () => {
     const data = await db.query.taskStatus.findMany()
     return { data: data, error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 const listTaskPriority = async () => {
@@ -133,7 +133,7 @@ const listTaskPriority = async () => {
     const data = await db.query.taskPriority.findMany()
     return { data: data, error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 const listTaskLabel = async () => {
@@ -141,7 +141,7 @@ const listTaskLabel = async () => {
     const data = await db.query.taskLabel.findMany()
     return { data: data, error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 
@@ -150,7 +150,7 @@ const createTaskStatus = async (body: CreateTaskStatus) => {
     const data = await db.insert(taskStatus).values(body).returning()
     return { data: data[0], error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 const updateTaskStatus = async (body: UpdateTaskStatus) => {
@@ -166,7 +166,7 @@ const updateTaskStatus = async (body: UpdateTaskStatus) => {
       .returning()
     return { data: data[0], error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 
@@ -175,7 +175,7 @@ const deleteTaskStatus = async (id: string) => {
     const data = await db.delete(taskStatus).where(eq(taskStatus.id, id))
     return { data: data, error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 
@@ -184,7 +184,7 @@ const createTaskPriority = async (body: CreateTaskPriority) => {
     const data = await db.insert(taskPriority).values(body).returning()
     return { data: data[0], error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 const updateTaskPriority = async (body: UpdateTaskPriority) => {
@@ -197,7 +197,7 @@ const updateTaskPriority = async (body: UpdateTaskPriority) => {
       .returning()
     return { data: data[0], error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 const deleteTaskPriority = async (id: string) => {
@@ -205,7 +205,7 @@ const deleteTaskPriority = async (id: string) => {
     const data = await db.delete(taskPriority).where(eq(taskPriority.id, id))
     return { data: data, error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 const createTaskLabel = async (body: CreateTaskLabel) => {
@@ -213,7 +213,7 @@ const createTaskLabel = async (body: CreateTaskLabel) => {
     const data = await db.insert(taskLabel).values(body).returning()
     return { data: data[0], error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 const updateTaskLabel = async (body: UpdateTaskLabel) => {
@@ -226,7 +226,7 @@ const updateTaskLabel = async (body: UpdateTaskLabel) => {
       .returning()
     return { data: data[0], error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 
@@ -235,7 +235,7 @@ const deleteTaskLabel = async (id: string) => {
     const data = await db.delete(taskLabel).where(eq(taskLabel.id, id))
     return { data: data, error: null }
   } catch (error) {
-    throwError(error)
+    return throwError(error)
   }
 }
 export {
