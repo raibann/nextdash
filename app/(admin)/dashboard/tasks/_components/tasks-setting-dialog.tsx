@@ -5,10 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import StatusTab from './tasks-setting-status'
-import PriorityTab from './tasks-setting-priority'
-import LabelTab from './tasks-setting-label'
+import TaskPropertyTab from './tasks-property'
 
 type TasksSettingDialogProps = {
   open: boolean
@@ -25,22 +22,9 @@ const TasksSettingDialog = ({
         <DialogHeader>
           <DialogTitle>Tasks Setting</DialogTitle>
         </DialogHeader>
-        <Tabs defaultValue='status' className='w-full'>
-          <TabsList className='grid w-full grid-cols-3'>
-            <TabsTrigger value='status'>Status</TabsTrigger>
-            <TabsTrigger value='priority'>Priority</TabsTrigger>
-            <TabsTrigger value='label'>Label</TabsTrigger>
-          </TabsList>
-          <TabsContent value='status' className='mt-4'>
-            <StatusTab />
-          </TabsContent>
-          <TabsContent value='priority' className='mt-4'>
-            <PriorityTab />
-          </TabsContent>
-          <TabsContent value='label' className='mt-4'>
-            <LabelTab />
-          </TabsContent>
-        </Tabs>
+        <div>
+          <TaskPropertyTab />
+        </div>
       </DialogContent>
     </Dialog>
   )

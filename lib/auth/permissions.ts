@@ -8,3 +8,5 @@ const statement = {
 } as const
 
 const ac = createAccessControl(statement)
+
+export default ac

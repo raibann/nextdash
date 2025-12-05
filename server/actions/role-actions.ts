@@ -1,5 +1,5 @@
 'use server'
-import { db } from '@/db'
+import { db } from '@/db/drizzle'
 import { role } from '@/db/schema'
 import { throwClientError, throwError } from '@/lib/error-utils'
 import { and, desc, eq, ilike, ne, or, sql } from 'drizzle-orm'

@@ -1,4 +1,4 @@
-import { db } from '@/db'
+import { db } from '@/db/drizzle'
 import { user } from '@/db/schema'
 import { auth } from '@/lib/auth'
 import { eq } from 'drizzle-orm'
@@ -13,7 +13,7 @@ export async function createAdmin() {
     if (existUser) {
       console.log('Admin already existed')
     } else {
-      await auth.api.createUser({
+      await auth.api.signUpEmail({
         body: {
           email: email, // required
           password: password, // required

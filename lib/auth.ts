@@ -1,7 +1,7 @@
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { db } from '@/db'
-import { openAPI, organization } from 'better-auth/plugins'
+import { db } from '@/db/drizzle'
+import { admin, openAPI } from 'better-auth/plugins'
 import { nextCookies } from 'better-auth/next-js'
 
 export const auth = betterAuth({
@@ -17,11 +17,11 @@ export const auth = betterAuth({
    * Plugins extend the functionality of Better-Auth. The admin plugin provides an admin dashboard
    */
   plugins: [
-    organization(),
-    // admin({
-    //   defaultRole: 'user',
-    //   adminRoles: ['admin'],
-    // }),
+    // organization(),
+    admin({
+      defaultRole: 'user',
+      adminRoles: ['admin'],
+    }),
     nextCookies(),
     openAPI({
       disableDefaultReference: process.env.NODE_ENV !== 'development',

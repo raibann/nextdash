@@ -22,6 +22,27 @@
       "when": 1764916245041,
       "tag": "20251205063045_update_to_organization",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1764926039676,
+      "tag": "20251205091359_update_to_admin",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1764930639861,
+      "tag": "20251205103039_update_user_role_to_single",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1764932113826,
+      "tag": "20251205105513_update_task_property",
+      "breakpoints": true
     }
   ]
 }

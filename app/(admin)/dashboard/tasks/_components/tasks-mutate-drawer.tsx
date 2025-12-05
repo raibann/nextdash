@@ -3,7 +3,6 @@
 import { z } from 'zod'
 import { Controller, useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { showSubmittedData } from '@/lib/show-submitted-data'
 import { Button } from '@/components/ui/button'
 import {
   Sheet,
@@ -25,16 +24,16 @@ import { Spinner } from '@/components/ui/spinner'
 import { SelectDropdown } from '@/components/select-dropdown'
 import { queryOptions, useQueries } from '@tanstack/react-query'
 import {
-  listTaskPriority,
-  listTaskLabel,
-  listTaskStatus,
-  TaskStatus,
-  TaskPriority,
-  TaskLabel,
+  listTaskProperties,
+  TaskProperty,
   Task,
+  createTask,
+  updateTask,
 } from '@/server/actions/task-actions'
 import { Textarea } from '@/components/ui/textarea'
 import { useEffect } from 'react'
+import { toast } from 'sonner'
+import { getQueryClient } from '@/lib/react-query'
 
 type TaskMutateDrawerProps = {
   open: boolean
@@ -62,16 +61,16 @@ export function TasksMutateDrawer({
   const [taskStatusQuery, taskPriorityQuery, taskLabelQuery] = useQueries({
     queries: [
       queryOptions({
-        queryKey: ['task-status'],
-        queryFn: () => listTaskStatus(),
+        queryKey: ['task-properties', 'status'],
+        queryFn: () => listTaskProperties('status'),
       }),
       queryOptions({
-        queryKey: ['task-priority'],
-        queryFn: () => listTaskPriority(),
+        queryKey: ['task-properties', 'priority'],
+        queryFn: () => listTaskProperties('priority'),
       }),
       queryOptions({
-        queryKey: ['task-label'],
-        queryFn: () => listTaskLabel(),
+        queryKey: ['task-properties', 'label'],
+        queryFn: () => listTaskProperties('label'),
       }),
     ],
   })
@@ -100,22 +99,23 @@ export function TasksMutateDrawer({
   }, [currentRow, form])
 
   // Map query results to dropdown items
+  // Use 'value' field because task table stores the value from taskProperty
   const statusItems =
-    taskStatusQuery.data?.data?.map((s: TaskStatus) => ({
-      label: s.status,
-      value: s.id,
+    taskStatusQuery.data?.data?.map((s: TaskProperty) => ({
+      label: s.label,
+      value: s.value,
     })) ?? []
 
   const priorityItems =
-    taskPriorityQuery.data?.data?.map((p: TaskPriority) => ({
-      label: p.priority,
-      value: p.id,
+    taskPriorityQuery.data?.data?.map((p: TaskProperty) => ({
+      label: p.label,
+      value: p.value,
     })) ?? []
 
   const labelItems =
-    taskLabelQuery.data?.data?.map((l: TaskLabel) => ({
+    taskLabelQuery.data?.data?.map((l: TaskProperty) => ({
       label: l.label,
-      value: l.id,
+      value: l.value,
     })) ?? []
 
   const isLoading =
@@ -124,10 +124,62 @@ export function TasksMutateDrawer({
     taskLabelQuery.isLoading
 
   const onSubmit = async (data: TaskForm) => {
-    // do something with the form data
-    onOpenChange(false)
-    form.reset()
-    showSubmittedData(data)
+    const isUpdate = !!currentRow
+
+    try {
+      if (isUpdate) {
+        if (!currentRow?.id) {
+          toast.error('Task ID is required for update')
+          return
+        }
+        const res = await updateTask({
+          id: currentRow.id,
+          title: data.title,
+          desc: data.desc,
+          label: data.label,
+          status: data.status,
+          priority: data.priority,
+          startDate: currentRow.startDate,
+          endDate: currentRow.endDate,
+          assignedTo: currentRow.assignedTo,
+          createdBy: currentRow.createdBy,
+          parentId: currentRow.parentId,
+        })
+        if (res?.error) {
+          toast.error(res.error)
+        } else if (res?.data) {
+          toast.success('Task updated successfully!')
+          onOpenChange(false)
+          form.reset()
+          getQueryClient().invalidateQueries({ queryKey: ['tasks'] })
+        }
+      } else {
+        // For new tasks, set default dates (today and 7 days from now)
+        const startDate = new Date()
+        const endDate = new Date()
+        endDate.setDate(endDate.getDate() + 7)
+
+        const res = await createTask({
+          title: data.title,
+          desc: data.desc,
+          label: data.label,
+          status: data.status,
+          priority: data.priority,
+          startDate,
+          endDate,
+        })
+        if (res?.error) {
+          toast.error(res.error)
+        } else if (res?.data) {
+          toast.success('Task created successfully!')
+          onOpenChange(false)
+          form.reset()
+          getQueryClient().invalidateQueries({ queryKey: ['tasks'] })
+        }
+      }
+    } catch {
+      toast.error('An error occurred while saving the task')
+    }
   }
 
   return (

@@ -1,6 +1,6 @@
 'use server'
 
-import { db } from '@/db'
+import { db } from '@/db/drizzle'
 import { user } from '@/db/schema'
 import { auth } from '@/lib/auth'
 import { throwClientError } from '@/lib/error-utils'

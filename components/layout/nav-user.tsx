@@ -3,7 +3,6 @@ import {
   Bell,
   ChevronsUpDown,
   CreditCard,
-  Loader,
   LogOut,
   Sparkles,
 } from 'lucide-react'
