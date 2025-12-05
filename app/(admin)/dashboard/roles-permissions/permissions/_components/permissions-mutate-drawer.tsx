@@ -45,7 +45,6 @@ const formSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, 'Name is required'),
   desc: z.string().optional(),
-  slug: z.string(),
 })
 
 type FormSchema = z.infer<typeof formSchema>
@@ -64,7 +63,6 @@ export function PermissionsMutateDrawer({
       id: currentRow?.id,
       name: currentRow?.name ?? '',
       desc: currentRow?.desc ?? '',
-      slug: currentRow?.slug ?? '',
     },
   })
 
@@ -85,7 +83,7 @@ export function PermissionsMutateDrawer({
       const res = await updatePermission({
         id: data.id,
         name: data.name,
-        slug: data.slug,
+        slug: data.name.toLowerCase().replace(/\s+/g, '.'),
         desc: data.desc,
       })
       if (res?.error !== null) {
@@ -102,7 +100,7 @@ export function PermissionsMutateDrawer({
       const res = await createPermission({
         name: data.name,
         desc: data.desc,
-        slug: data.slug,
+        slug: data.name.toLowerCase().replace(/\s+/g, '.'),
       })
 
       if (res?.error) {
@@ -160,34 +158,19 @@ export function PermissionsMutateDrawer({
                     aria-invalid={fieldState.invalid}
                     autoComplete='off'
                     onChange={(e) => {
-                      const value = e.target.value
-                      field.onChange(value)
-                      form.setValue(
-                        'slug',
-                        value.toLowerCase().replace(/\s+/g, '_')
+                      // Capitalize first letter of each word using regex
+                      const value = e.target.value.replace(/\b\w/g, (char) =>
+                        char.toUpperCase()
                       )
+                      field.onChange(value)
                     }}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            {/* Slug */}
-            <Controller
-              name='slug'
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid} className='col-span-2'>
-                  <FieldLabel htmlFor='permission-slu'>Slug</FieldLabel>
-                  <Input
-                    {...field}
-                    id='permission-slug'
-                    aria-invalid={fieldState.invalid}
-                    autoComplete='off'
-                    readOnly
-                    disabled
+                    value={
+                      typeof field.value === 'string'
+                        ? field.value.replace(/\b\w/g, (char) =>
+                            char.toUpperCase()
+                          )
+                        : field.value
+                    }
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />

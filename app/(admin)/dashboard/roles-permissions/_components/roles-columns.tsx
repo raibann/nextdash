@@ -10,6 +10,9 @@ import {
 } from '@/components/ui/tooltip'
 import ClipboardButton from '@/components/clipboard-btn'
 import { Role } from '@/server/actions/role-actions'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { useRole } from './roles-provider'
 
 export const rolesColumns: ColumnDef<Role>[] = [
   {
@@ -69,7 +72,7 @@ export const rolesColumns: ColumnDef<Role>[] = [
     cell: ({ row }) => {
       const icon = row.original.icon
       return (
-        <div className='flex space-x-2 max-w-36'>
+        <div className='flex space-x-2 w-25'>
           {icon && (
             <DynamicIcon
               className='h-4 w-4 shrink-0'
@@ -78,6 +81,60 @@ export const rolesColumns: ColumnDef<Role>[] = [
             />
           )}
           <span className='text-sm capitalize'>{row.getValue('name')}</span>
+        </div>
+      )
+    },
+    enableSorting: false,
+  },
+  {
+    accessorKey: 'slug',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Slug' />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className='flex items-center space-x-2 group'>
+          <span className='text-sm pl-2'>{row.getValue('slug')}</span>
+          <ClipboardButton
+            text={row.getValue('slug')}
+            className='hidden group-hover:block transition-all duration-300 ease-in-out'
+          />
+        </div>
+      )
+    },
+    enableSorting: false,
+  },
+  {
+    id: 'permission',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Permissions' />
+    ),
+    cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { setOpen, setCurrentRow } = useRole()
+      return (
+        <div className='flex flex-wrap gap-2 w-50'>
+          {row.original.rolePermissions.slice(0, 3).map((rolePermission) => (
+            <Badge
+              key={rolePermission.permission.id}
+              variant={'secondary'}
+              className='text-xs hover:border-border'
+            >
+              {rolePermission.permission.name}
+            </Badge>
+          ))}
+          {row.original.rolePermissions.length > 3 && (
+            <Badge
+              variant={'secondary'}
+              className='text-xs cursor-pointer hover:border-border'
+              onClick={() => {
+                setOpen('permission')
+                setCurrentRow(row.original)
+              }}
+            >
+              +{row.original.rolePermissions.length - 3}
+            </Badge>
+          )}
         </div>
       )
     },
@@ -99,6 +156,7 @@ export const rolesColumns: ColumnDef<Role>[] = [
         </Tooltip>
       </div>
     ),
+    enableSorting: false,
   },
   // {
   //   accessorKey: 'createdAt',

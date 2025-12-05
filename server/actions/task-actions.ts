@@ -1,25 +1,25 @@
 'use server'
 import { db } from '@/db/drizzle'
-import { task,taskProperty } from '@/db/schema'
+import { taskTable,taskPropertyTable } from '@/db/schema'
 import { throwClientError, throwError } from '@/lib/error-utils'
 import { and, desc, eq, ilike, ne, or, sql } from 'drizzle-orm'
 
-export type CreateTask = typeof task.$inferInsert
+export type CreateTask = typeof taskTable.$inferInsert
 export type UpdateTask = CreateTask
-export type Task = typeof task.$inferSelect
-export type TaskProperty = typeof taskProperty.$inferSelect
-export type CreateTaskProperty = typeof taskProperty.$inferInsert
+export type Task = typeof taskTable.$inferSelect
+export type TaskProperty = typeof taskPropertyTable.$inferSelect
+export type CreateTaskProperty = typeof taskPropertyTable.$inferInsert
 
 const createTask = async (body: CreateTask) => {
   try {
-    const existed = await db.query.task.findFirst({
-      where: eq(task.title, body.title),
+    const existed = await db.query.taskTable.findFirst({
+      where: eq(taskTable.title, body.title),
     })
 
     if (existed) {
       return { data: null, error: 'Task already is existed!' }
     }
-    const data = await db.insert(task).values(body).returning()
+    const data = await db.insert(taskTable).values(body).returning()
     return { data: data[0], error: null }
   } catch (error) {
     return throwError(error)
@@ -29,10 +29,10 @@ const updateTask = async (body: UpdateTask) => {
   try {
     if (!body.id) return { data: null, error: 'Id is required' }
     // 1. Check if another role already uses the same name
-    const existed = await db.query.task.findFirst({
+    const existed = await db.query.taskTable.findFirst({
       where: and(
-        eq(task.title, body.title),
-        ne(task.id, body.id) // ignore current task
+        eq(taskTable.title, body.title),
+        ne(taskTable.id, body.id) // ignore current task
       ),
     })
     if (existed) {
@@ -41,7 +41,7 @@ const updateTask = async (body: UpdateTask) => {
 
     // 2. Update role safely
     const data = await db
-      .update(task)
+      .update(taskTable)
       .set({
         title: body.title,
         desc: body.desc,
@@ -49,7 +49,7 @@ const updateTask = async (body: UpdateTask) => {
         status: body.status,
         priority: body.priority,
       })
-      .where(eq(task.id, body.id))
+      .where(eq(taskTable.id, body.id))
       .returning() // optional: get updated data
 
     return { data: data[0], error: null }
@@ -63,7 +63,7 @@ const updateTask = async (body: UpdateTask) => {
 }
 const deleteTask = async (id: string) => {
   try {
-    const data = await db.delete(task).where(eq(task.id, id))
+    const data = await db.delete(taskTable).where(eq(taskTable.id, id))
     return { data: data, error: null }
   } catch (error) {
     if (error instanceof Error) {
@@ -85,19 +85,19 @@ const listTask = async ({
 }) => {
   try {
     const where = search
-      ? or(ilike(task.title, `%${search}%`), ilike(task.id, `%${search}%`))
+      ? or(ilike(taskTable.title, `%${search}%`), ilike(taskTable.id, `%${search}%`))
       : undefined
-    const data = await db.query.task.findMany({
+    const data = await db.query.taskTable.findMany({
       where,
       limit: pageSize,
       offset: pageIndex * pageSize,
-      orderBy: [desc(task.createdAt)],
+      orderBy: [desc(taskTable.createdAt)],
     })
 
     // Count total for TanStack Table pagination
     const total = await db
       .select({ count: sql<number>`count(*)` })
-      .from(task)
+      .from(taskTable)
       .where(where ?? sql`true`)
 
     return {
@@ -113,8 +113,8 @@ const listTask = async ({
 
 const listTaskProperties = async (field: string) => {
   try {
-    const data = await db.query.taskProperty.findMany({
-      where: eq(taskProperty.field, field),
+    const data = await db.query.taskPropertyTable.findMany({
+      where: eq(taskPropertyTable.field, field),
     })
     return { data: data, error: null }  
   } catch (error) {
@@ -124,7 +124,7 @@ const listTaskProperties = async (field: string) => {
 
 const createTaskProperty = async (body: CreateTaskProperty) => {
   try {
-    const data = await db.insert(taskProperty).values(body).returning()
+    const data = await db.insert(taskPropertyTable).values(body).returning()
     return { data: data[0], error: null }
   } catch (error) {
     return throwError(error)
@@ -134,7 +134,7 @@ const updateTaskProperty = async (body: Partial<TaskProperty> & { id: string }) 
   try {
     if (!body.id) return { data: null, error: 'Id is required' }
     const data = await db
-      .update(taskProperty)
+      .update(taskPropertyTable)
       .set({
         field: body.field,
         type: body.type,
@@ -142,7 +142,7 @@ const updateTaskProperty = async (body: Partial<TaskProperty> & { id: string }) 
         label: body.label,
         value: body.value,
       })
-      .where(eq(taskProperty.id, body.id))
+      .where(eq(taskPropertyTable.id, body.id))
       .returning()
     return { data: data[0], error: null }
   } catch (error) {
@@ -152,7 +152,7 @@ const updateTaskProperty = async (body: Partial<TaskProperty> & { id: string }) 
 
 const deleteTaskProperty = async (id: string) => {
   try {
-    const data = await db.delete(taskProperty).where(eq(taskProperty.id, id))
+    const data = await db.delete(taskPropertyTable).where(eq(taskPropertyTable.id, id))
     return { data: data, error: null }
   } catch (error) {
     return throwError(error)

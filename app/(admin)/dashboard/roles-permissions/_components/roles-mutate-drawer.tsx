@@ -82,6 +82,7 @@ export function RolesMutateDrawer({
         name: data.name,
         icon: data.icon,
         desc: data.desc,
+        slug: data.name.toLowerCase().replace(/\s+/g, '-'),
       })
       if (res.error !== null) {
         toast.error(res.error)
@@ -97,6 +98,7 @@ export function RolesMutateDrawer({
         name: data.name,
         desc: data.desc,
         icon: data.icon,
+        slug: data.name.toLowerCase().replace(/\s+/g, '-'),
       })
 
       if (res?.error) {

@@ -67,11 +67,12 @@ export const permissionColumns: ColumnDef<Permission>[] = [
     meta: { className: 'ps-1', tdClassName: 'ps-4' },
     cell: ({ row }) => {
       return (
-        <div>
+        <div className='w-25'>
           <span className='text-sm capitalize'>{row.getValue('name')}</span>
         </div>
       )
     },
+    enableSorting: false,
   },
   {
     accessorKey: 'slug',
@@ -81,7 +82,7 @@ export const permissionColumns: ColumnDef<Permission>[] = [
     meta: { className: 'ps-1', tdClassName: 'ps-4' },
     cell: ({ row }) => {
       return (
-        <div className='flex items-center space-x-2 group w-50'>
+        <div className='flex items-center space-x-2 group'>
           <span className='text-sm'>{row.getValue('slug')}</span>
           <ClipboardButton
             text={row.getValue('slug')}
@@ -90,6 +91,7 @@ export const permissionColumns: ColumnDef<Permission>[] = [
         </div>
       )
     },
+    enableSorting: false,
   },
   {
     accessorKey: 'desc',
@@ -108,6 +110,7 @@ export const permissionColumns: ColumnDef<Permission>[] = [
         </Tooltip>
       </div>
     ),
+    enableSorting: false,
   },
   // {
   //   accessorKey: 'createdAt',
