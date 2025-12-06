@@ -21,7 +21,7 @@ const DashboardLayout = async ({ children }: PropsWithChildren) => {
     redirect('/sign-in')
   }
 
-  return AuthenticatedLayout({ children })
+  return <AuthenticatedLayout session={authed}>{children}</AuthenticatedLayout>
 }
 
 export default DashboardLayout

@@ -10,7 +10,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { DataTableBulkActions as BulkActionsToolbar } from '@/components/data-table'
-import { type User } from '../_data/schema'
+import type { User } from '@/server/actions/user-actions'
 import { UsersMultiDeleteDialog } from './users-multi-delete-dialog'
 
 type DataTableBulkActionsProps<TData> = {
@@ -26,12 +26,18 @@ export function DataTableBulkActions<TData>({
   const handleBulkStatusChange = (status: 'active' | 'inactive') => {
     const selectedUsers = selectedRows.map((row) => row.original as User)
     toast.promise(sleep(2000), {
-      loading: `${status === 'active' ? 'Activating' : 'Deactivating'} users...`,
+      loading: `${
+        status === 'active' ? 'Activating' : 'Deactivating'
+      } users...`,
       success: () => {
         table.resetRowSelection()
-        return `${status === 'active' ? 'Activated' : 'Deactivated'} ${selectedUsers.length} user${selectedUsers.length > 1 ? 's' : ''}`
+        return `${status === 'active' ? 'Activated' : 'Deactivated'} ${
+          selectedUsers.length
+        } user${selectedUsers.length > 1 ? 's' : ''}`
       },
-      error: `Error ${status === 'active' ? 'activating' : 'deactivating'} users`,
+      error: `Error ${
+        status === 'active' ? 'activating' : 'deactivating'
+      } users`,
     })
     table.resetRowSelection()
   }
@@ -42,7 +48,9 @@ export function DataTableBulkActions<TData>({
       loading: 'Inviting users...',
       success: () => {
         table.resetRowSelection()
-        return `Invited ${selectedUsers.length} user${selectedUsers.length > 1 ? 's' : ''}`
+        return `Invited ${selectedUsers.length} user${
+          selectedUsers.length > 1 ? 's' : ''
+        }`
       },
       error: 'Error inviting users',
     })

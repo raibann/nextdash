@@ -4,7 +4,7 @@ import { RoleDialogs } from './_components/roles-dialogs'
 import { RolesPrimaryButtons } from './_components/roles-primary-buttons'
 import RolesTable from './_components/roles-table'
 import { Main } from '@/components/layout/main'
-import { listRole } from '@/server/actions/role-actions'
+import { listRole, Role } from '@/server/actions/role-actions'
 import { useMemo, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useTableUrlState } from '@/hooks/use-table-url-state'
@@ -122,7 +122,7 @@ const Roles = () => {
           <RolesPrimaryButtons />
         </div>
         <RolesTable
-          data={data?.data || []}
+          data={(data?.data as unknown as Role[]) || []}
           rowCount={data?.rowCount || 0}
           loading={isPending}
           error={error}

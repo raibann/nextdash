@@ -1,27 +1,27 @@
-import { UsersActionDialog } from './users-action-dialog'
 import { UsersDeleteDialog } from './users-delete-dialog'
-import { UsersInviteDialog } from './users-invite-dialog'
+// import { UsersInviteDialog } from './users-invite-dialog'
+import { UsersMutationDialog } from './users-mutation-dialog'
 import { useUsers } from './users-provider'
 
 export function UsersDialogs() {
   const { open, setOpen, currentRow, setCurrentRow } = useUsers()
   return (
     <>
-      <UsersActionDialog
+      <UsersMutationDialog
         key='user-add'
         open={open === 'add'}
         onOpenChange={() => setOpen('add')}
       />
 
-      <UsersInviteDialog
+      {/* <UsersInviteDialog
         key='user-invite'
         open={open === 'invite'}
         onOpenChange={() => setOpen('invite')}
-      />
+      /> */}
 
       {currentRow && (
         <>
-          <UsersActionDialog
+          <UsersMutationDialog
             key={`user-edit-${currentRow.id}`}
             open={open === 'edit'}
             onOpenChange={() => {

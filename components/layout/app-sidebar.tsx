@@ -13,17 +13,10 @@ import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
 // import { TeamSwitcher } from './team-switcher'
 import CompanyHeader from './company-header'
-import { useSession } from '@/lib/auth-client'
-import { GeneralError } from '../errors/general-error'
+import { Session } from '@/lib/auth'
 
-export function AppSidebar() {
+export function AppSidebar({ session }: { session: Session | null }) {
   const { collapsible, variant } = useLayout()
-
-  const { data, isPending, error } = useSession()
-
-  if (error) return <GeneralError message='dashboard' />
-
-  if (!data?.user) return null
 
   return (
     <Sidebar collapsible={collapsible} variant={variant}>
@@ -42,11 +35,10 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <NavUser
-          loading={isPending}
           user={{
-            avatar: data.user.image || '',
-            email: data.user.email,
-            name: data.user.name,
+            avatar: session?.user?.image || '',
+            email: session?.user?.email || '',
+            name: session?.user?.name || '',
           }}
         />
       </SidebarFooter>

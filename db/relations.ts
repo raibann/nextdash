@@ -1,13 +1,13 @@
 import { relations } from 'drizzle-orm/relations'
 import {
-  user,
   account,
-  page,
-  taskProperty,
-  task,
+  user,
   session,
   role,
   rolePermission,
+  task,
+  page,
+  taskProperty,
   permission,
 } from './schema'
 
@@ -20,7 +20,11 @@ export const accountRelations = relations(account, ({ one }) => ({
 }))
 
 // USER RELATIONS
-export const userRelations = relations(user, ({ many }) => ({
+export const userRelations = relations(user, ({ one, many }) => ({
+  roleRelation: one(role, {
+    fields: [user.role],
+    references: [role.slug],
+  }),
   accounts: many(account),
   tasks_assignedTo: many(task, {
     relationName: 'task_assignedTo_user_id',
@@ -30,6 +34,20 @@ export const userRelations = relations(user, ({ many }) => ({
   }),
   sessions: many(session),
 }))
+
+export const rolePermissionOneToOneRelations = relations(
+  rolePermission,
+  ({ one }) => ({
+    role: one(role, {
+      fields: [rolePermission.roleId],
+      references: [role.id],
+    }),
+    permission: one(permission, {
+      fields: [rolePermission.permissionId],
+      references: [permission.id],
+    }),
+  })
+)
 
 // PAGE RELATIONS
 export const pageRelations = relations(page, ({ one, many }) => ({

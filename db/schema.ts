@@ -24,10 +24,10 @@ export const user = pgTable('user', {
     .notNull(),
   banned: boolean('banned').default(false),
   banReason: text('ban_reason'),
-  role: text('role').references((): AnyPgColumn => roleTable.id, {
-    onDelete: 'set null',
-  }),
+  role: text('role'),
   banExpires: timestamp('ban_expires'),
+  username: text('username').unique(),
+  displayUsername: text('display_username'),
 })
 
 // SESSION TABLE
@@ -93,27 +93,8 @@ export const verification = pgTable(
   (table) => [index('verification_identifier_idx').on(table.identifier)]
 )
 
-export const userRelations = relations(user, ({ many }) => ({
-  sessions: many(session),
-  accounts: many(account),
-}))
-
-export const sessionRelations = relations(session, ({ one }) => ({
-  user: one(user, {
-    fields: [session.userId],
-    references: [user.id],
-  }),
-}))
-
-export const accountRelations = relations(account, ({ one }) => ({
-  user: one(user, {
-    fields: [account.userId],
-    references: [user.id],
-  }),
-}))
-
 // ROLE TABLE
-export const roleTable = pgTable('role', {
+export const role = pgTable('role', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => createId()),
@@ -128,7 +109,7 @@ export const roleTable = pgTable('role', {
 })
 
 // PERMISSION TABLE
-export const permissionTable = pgTable('permission', {
+export const permission = pgTable('permission', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => createId()), // example: "user.create", "post.update"
@@ -142,41 +123,22 @@ export const permissionTable = pgTable('permission', {
 })
 
 // ROLE ↔ PERMISSION (Many-to-Many)
-export const rolePermissionTable = pgTable(
+export const rolePermission = pgTable(
   'role_permission',
   {
     roleId: text('role_id')
       .notNull()
-      .references(() => roleTable.id, { onDelete: 'cascade' }),
+      .references(() => role.id, { onDelete: 'cascade' }),
 
     permissionId: text('permission_id')
       .notNull()
-      .references(() => permissionTable.id, { onDelete: 'cascade' }),
+      .references(() => permission.id, { onDelete: 'cascade' }),
   },
   (t) => [primaryKey({ columns: [t.roleId, t.permissionId] })]
 )
 
-export const rolePermissionRelations = relations(roleTable, ({ many }) => ({
-  rolePermissions: many(rolePermissionTable),
-}))
-
-export const permissionRoleRelations = relations(permissionTable, ({ many }) => ({
-  rolePermissions: many(rolePermissionTable),
-}))
-
-export const rolePermissionTableRelations = relations(rolePermissionTable, ({ one }) => ({
-  role: one(roleTable, {
-    fields: [rolePermissionTable.roleId],
-    references: [roleTable.id],
-  }),
-  permission: one(permissionTable, {
-    fields: [rolePermissionTable.permissionId],
-    references: [permissionTable.id],
-  }),
-}))
-
 // TASK TABLE
-export const taskTable = pgTable('task', {
+export const task = pgTable('task', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => createId()),
@@ -186,7 +148,7 @@ export const taskTable = pgTable('task', {
   status: varchar('status', { length: 50 }).notNull(),
   priority: varchar('priority', { length: 50 })
     .notNull()
-    .references((): AnyPgColumn => taskPropertyTable.value, {
+    .references((): AnyPgColumn => taskProperty.value, {
       onDelete: 'set null',
     }),
   assignedTo: text('assigned_to').references((): AnyPgColumn => user.id, {
@@ -195,7 +157,7 @@ export const taskTable = pgTable('task', {
   createdBy: text('created_by').references((): AnyPgColumn => user.id, {
     onDelete: 'set null',
   }), // user who created the task
-  parentId: text('parent_id').references((): AnyPgColumn => taskTable.id, {
+  parentId: text('parent_id').references((): AnyPgColumn => task.id, {
     onDelete: 'set null',
   }), // task that is the parent of the current task
   startDate: timestamp('start_date').notNull(),
@@ -207,7 +169,7 @@ export const taskTable = pgTable('task', {
 })
 
 // TASK PROPERTY TABLE
-export const taskPropertyTable = pgTable('task_property', {
+export const taskProperty = pgTable('task_property', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => createId()),
@@ -222,26 +184,26 @@ export const taskPropertyTable = pgTable('task_property', {
     .notNull(),
 })
 
-export const taskRelations = relations(taskTable, ({ one }) => ({
+export const taskRelations = relations(task, ({ one }) => ({
   user: one(user, {
-    fields: [taskTable.assignedTo],
+    fields: [task.assignedTo],
     references: [user.id],
   }),
-  parent: one(taskTable, {
-    fields: [taskTable.parentId],
-    references: [taskTable.id],
+  parent: one(task, {
+    fields: [task.parentId],
+    references: [task.id],
   }),
 }))
 
 // PAGE TABLE
-export const pageTable = pgTable('page', {
+export const page = pgTable('page', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => createId()),
   name: varchar('name', { length: 100 }).notNull(),
   slug: varchar('slug', { length: 150 }).notNull().unique(), // e.g. "users"
   icon: varchar('icon', { length: 50 }), // optional for sidebar
-  parentId: text('parent_id').references((): AnyPgColumn => pageTable.id, {
+  parentId: text('parent_id').references((): AnyPgColumn => page.id, {
     onDelete: 'set null',
   }),
   orderIndex: integer('order_index').default(0).notNull(),
@@ -251,11 +213,3 @@ export const pageTable = pgTable('page', {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
 })
-
-export const pageRelations = relations(pageTable, ({ one, many }) => ({
-  parent: one(pageTable, {
-    fields: [pageTable.parentId],
-    references: [pageTable.id],
-  }),
-  children: many(pageTable),
-}))

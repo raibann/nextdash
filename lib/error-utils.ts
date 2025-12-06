@@ -8,7 +8,7 @@ export function throwError(error: unknown) {
 
 export function throwClientError(error: unknown) {
   if (error instanceof Error) {
-    throw error
+    throw new Error(error.message)
   }
   console.error(error)
   throw new Error('Something went wrong!')

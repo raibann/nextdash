@@ -2,7 +2,7 @@
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
-import { ProfileDropdown } from '@/components/profile-dropdown'
+// import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { UsersDialogs } from './_components/users-dialogs'
@@ -10,7 +10,7 @@ import { UsersPrimaryButtons } from './_components/users-primary-buttons'
 import { UsersProvider } from './_components/users-provider'
 import { UsersTable } from './_components/users-table'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { listUser } from '@/server/actions/user-actions'
+import { listUser, User } from '@/server/actions/user-actions'
 import { useMemo, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useTableUrlState } from '@/hooks/use-table-url-state'
@@ -98,8 +98,8 @@ export default function UsersPage() {
 
   const { data, isPending, error } = useQuery({
     queryKey,
-    queryFn: () =>
-      listUser({
+    queryFn: async () =>
+      await listUser({
         pageIndex: pagination.pageIndex,
         pageSize: pagination.pageSize,
         search: globalFilter || '',
@@ -124,7 +124,7 @@ export default function UsersPage() {
         <div className='ms-auto flex items-center space-x-4'>
           <ThemeSwitch />
           <ConfigDrawer />
-          <ProfileDropdown />
+          {/* <ProfileDropdown /> */}
         </div>
       </Header>
 
@@ -139,7 +139,12 @@ export default function UsersPage() {
           <UsersPrimaryButtons />
         </div>
         <UsersTable
-          data={data?.data || []}
+          data={
+            (data?.data.map((user) => ({
+              ...user,
+              roleRelation: user.roleRelation,
+            })) as User[]) || []
+          }
           rowCount={data?.rowCount || 0}
           loading={isPending}
           error={error}

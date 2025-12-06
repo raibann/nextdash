@@ -4,6 +4,7 @@ import {
   inferAdditionalFields,
   adminClient,
   // organizationClient,
+  usernameClient,
 } from 'better-auth/client/plugins'
 /**
  * The authClient is used to interact with Better-Auth from the client-side.
@@ -14,6 +15,7 @@ export const authClient = createAuthClient({
   plugins: [
     inferAdditionalFields<typeof auth>(),
     adminClient(),
+    usernameClient(),
     // organizationClient(),
   ],
 })

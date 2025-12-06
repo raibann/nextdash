@@ -1,30 +1,31 @@
 'use server'
 import { db } from '@/db/drizzle'
-import { permissionTable, rolePermissionTable, roleTable } from '@/db/schema'
+import { permission, rolePermission, role } from '@/db/schema'
 import { throwClientError, throwError } from '@/lib/error-utils'
 import { and, desc, eq, ilike, inArray, ne, or, sql } from 'drizzle-orm'
 
 // types
-export type CreateRole = typeof roleTable.$inferInsert
+export type CreateRole = typeof role.$inferInsert
 export type UpdateRole = CreateRole
-export type Role = typeof roleTable.$inferSelect & {
-  rolePermissions: typeof rolePermissionTable.$inferSelect & {
-    permission: typeof permissionTable.$inferSelect
-  }[]
+export type Role = typeof role.$inferSelect & {
+  rolePermissions: typeof rolePermission.$inferSelect &
+    {
+      permission: typeof permission.$inferSelect
+    }[]
 }
-export type CreateRolePermission = typeof rolePermissionTable.$inferInsert
+export type CreateRolePermission = typeof rolePermission.$inferInsert
 
 // actions
 const createRole = async (body: CreateRole) => {
   try {
-    const existed = await db.query.roleTable.findFirst({
-      where: eq(roleTable.name, body.name),
+    const existed = await db.query.role.findFirst({
+      where: eq(role.name, body.name),
     })
 
     if (existed) {
       return { data: null, error: 'Role already is existed!' }
     }
-    const data = await db.insert(roleTable).values(body).returning()
+    const data = await db.insert(role).values(body).returning()
     return { data: data[0], error: null }
   } catch (error) {
     return throwError(error)
@@ -34,10 +35,10 @@ const updateRole = async (body: UpdateRole) => {
   try {
     if (!body.id) return { data: null, error: 'Id is required' }
     // 1. Check if another role already uses the same name
-    const existed = await db.query.roleTable.findFirst({
+    const existed = await db.query.role.findFirst({
       where: and(
-        eq(roleTable.name, body.name),
-        ne(roleTable.id, body.id) // ignore current role
+        eq(role.name, body.name),
+        ne(role.id, body.id) // ignore current role
       ),
     })
     if (existed) {
@@ -46,13 +47,13 @@ const updateRole = async (body: UpdateRole) => {
 
     // 2. Update role safely
     const data = await db
-      .update(roleTable)
+      .update(role)
       .set({
         name: body.name,
         icon: body.icon,
         desc: body.desc,
       })
-      .where(eq(roleTable.id, body.id))
+      .where(eq(role.id, body.id))
       .returning() // optional: get updated data
 
     return { data: data[0], error: null }
@@ -66,7 +67,7 @@ const updateRole = async (body: UpdateRole) => {
 }
 const deleteRole = async (id: string) => {
   try {
-    const data = await db.delete(roleTable).where(eq(roleTable.id, id))
+    const data = await db.delete(role).where(eq(role.id, id))
     return { data: data, error: null }
   } catch (error) {
     if (error instanceof Error) {
@@ -88,13 +89,13 @@ const listRole = async ({
 }) => {
   try {
     const where = search
-      ? or(ilike(roleTable.name, `%${search}%`), ilike(roleTable.id, `%${search}%`))
+      ? or(ilike(role.name, `%${search}%`), ilike(role.id, `%${search}%`))
       : undefined
-    const data = await db.query.roleTable.findMany({
+    const data = await db.query.role.findMany({
       where,
       limit: pageSize,
       offset: pageIndex * pageSize,
-      orderBy: [desc(roleTable.createdAt)],
+      orderBy: [desc(role.createdAt)],
       with: {
         rolePermissions: {
           with: {
@@ -107,7 +108,7 @@ const listRole = async ({
     // Count total for TanStack Table pagination
     const total = await db
       .select({ count: sql<number>`count(*)` })
-      .from(roleTable)
+      .from(role)
       .where(where ?? sql`true`)
 
     return {
@@ -123,8 +124,8 @@ const listRole = async ({
 
 const listRolePermission = async (roleId: string) => {
   try {
-    const data = await db.query.rolePermissionTable.findMany({
-      where: eq(rolePermissionTable.roleId, roleId),
+    const data = await db.query.rolePermission.findMany({
+      where: eq(rolePermission.roleId, roleId),
     })
     return { data: data, error: null }
   } catch (error) {
@@ -135,8 +136,8 @@ const listRolePermission = async (roleId: string) => {
 const deleteRolePermission = async (roleId: string) => {
   try {
     const data = await db
-      .delete(rolePermissionTable)
-      .where(eq(rolePermissionTable.roleId, roleId))
+      .delete(rolePermission)
+      .where(eq(rolePermission.roleId, roleId))
     return { data: data, error: null }
   } catch (error) {
     return throwError(error)
@@ -153,8 +154,8 @@ const upsertRolePermission = async (
     }
 
     // Get existing role permissions
-    const existingRolePermissions = await db.query.rolePermissionTable.findMany({
-      where: eq(rolePermissionTable.roleId, roleId),
+    const existingRolePermissions = await db.query.rolePermission.findMany({
+      where: eq(rolePermission.roleId, roleId),
     })
 
     const existingPermissionIds = existingRolePermissions.map(
@@ -174,11 +175,11 @@ const upsertRolePermission = async (
     // Delete permissions that are not in the new list
     if (permissionIdsToDelete.length > 0) {
       await db
-        .delete(rolePermissionTable)
+        .delete(rolePermission)
         .where(
           and(
-            eq(rolePermissionTable.roleId, roleId),
-            inArray(rolePermissionTable.permissionId, permissionIdsToDelete)
+            eq(rolePermission.roleId, roleId),
+            inArray(rolePermission.permissionId, permissionIdsToDelete)
           )
         )
     }
@@ -191,19 +192,16 @@ const upsertRolePermission = async (
       }))
 
       await db
-        .insert(rolePermissionTable)
+        .insert(rolePermission)
         .values(newRolePermissions)
         .onConflictDoNothing({
-          target: [
-            rolePermissionTable.roleId,
-            rolePermissionTable.permissionId,
-          ],
+          target: [rolePermission.roleId, rolePermission.permissionId],
         })
     }
 
     // Return the final state
-    const finalRolePermissions = await db.query.rolePermissionTable.findMany({
-      where: eq(rolePermissionTable.roleId, roleId),
+    const finalRolePermissions = await db.query.rolePermission.findMany({
+      where: eq(rolePermission.roleId, roleId),
     })
 
     return { data: finalRolePermissions, error: null }
@@ -212,4 +210,24 @@ const upsertRolePermission = async (
   }
 }
 
-export { createRole, updateRole, deleteRole, listRole, listRolePermission, deleteRolePermission, upsertRolePermission }
+const getAllRoles = async () => {
+  try {
+    const roles = await db.query.role.findMany({
+      orderBy: [desc(role.createdAt)],
+    })
+    return { data: roles, error: null }
+  } catch (error) {
+    return throwError(error)
+  }
+}
+
+export {
+  createRole,
+  updateRole,
+  deleteRole,
+  listRole,
+  listRolePermission,
+  deleteRolePermission,
+  upsertRolePermission,
+  getAllRoles,
+}

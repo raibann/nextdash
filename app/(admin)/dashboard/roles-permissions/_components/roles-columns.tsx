@@ -11,8 +11,9 @@ import {
 import ClipboardButton from '@/components/clipboard-btn'
 import { Role } from '@/server/actions/role-actions'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { useRole } from './roles-provider'
+import { LongText } from '@/components/long-text'
+import CopyText from '@/components/copy-text'
 
 export const rolesColumns: ColumnDef<Role>[] = [
   {
@@ -92,15 +93,7 @@ export const rolesColumns: ColumnDef<Role>[] = [
       <DataTableColumnHeader column={column} title='Slug' />
     ),
     cell: ({ row }) => {
-      return (
-        <div className='flex items-center space-x-2 group'>
-          <span className='text-sm pl-2'>{row.getValue('slug')}</span>
-          <ClipboardButton
-            text={row.getValue('slug')}
-            className='hidden group-hover:block transition-all duration-300 ease-in-out'
-          />
-        </div>
-      )
+      return <CopyText text={row.getValue('slug')} />
     },
     enableSorting: false,
   },
@@ -145,16 +138,7 @@ export const rolesColumns: ColumnDef<Role>[] = [
       <DataTableColumnHeader column={column} title='Description' />
     ),
     cell: ({ row }) => (
-      <div className='max-w-50 text-sm text-muted-foreground pl-2'>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <p className='truncate'>{row.getValue('desc')}</p>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className='max-w-sm'>{row.getValue('desc')}</p>
-          </TooltipContent>
-        </Tooltip>
-      </div>
+      <LongText className='w-50 pl-2'>{row.getValue('desc')}</LongText>
     ),
     enableSorting: false,
   },

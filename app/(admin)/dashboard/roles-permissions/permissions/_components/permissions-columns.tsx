@@ -9,6 +9,8 @@ import {
 } from '@/components/ui/tooltip'
 import ClipboardButton from '@/components/clipboard-btn'
 import { Permission } from '@/server/actions/permission-actions'
+import { LongText } from '@/components/long-text'
+import CopyText from '@/components/copy-text'
 
 export const permissionColumns: ColumnDef<Permission>[] = [
   {
@@ -81,15 +83,7 @@ export const permissionColumns: ColumnDef<Permission>[] = [
     ),
     meta: { className: 'ps-1', tdClassName: 'ps-4' },
     cell: ({ row }) => {
-      return (
-        <div className='flex items-center space-x-2 group'>
-          <span className='text-sm'>{row.getValue('slug')}</span>
-          <ClipboardButton
-            text={row.getValue('slug')}
-            className='hidden group-hover:block transition-all duration-300 ease-in-out'
-          />
-        </div>
-      )
+      return <CopyText text={row.getValue('slug')} />
     },
     enableSorting: false,
   },
@@ -99,55 +93,10 @@ export const permissionColumns: ColumnDef<Permission>[] = [
       <DataTableColumnHeader column={column} title='Description' />
     ),
     cell: ({ row }) => (
-      <div className='text-sm text-muted-foreground pl-2'>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <p className='truncate'>{row.getValue('desc')}</p>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className='max-w-sm'>{row.getValue('desc')}</p>
-          </TooltipContent>
-        </Tooltip>
-      </div>
+      <LongText className='w-50 pl-2'>{row.getValue('desc')}</LongText>
     ),
     enableSorting: false,
   },
-  // {
-  //   accessorKey: 'createdAt',
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title='Created At' />
-  //   ),
-  //   cell: ({ row }) => {
-  //     const createdAt = new Date(row.getValue('createdAt'))
-  //     return (
-  //       <time dateTime={createdAt.toISOString()} className='text-sm pl-2'>
-  //         {createdAt.toLocaleDateString(undefined, {
-  //           year: 'numeric',
-  //           month: 'short',
-  //           day: 'numeric',
-  //         })}
-  //       </time>
-  //     )
-  //   },
-  // },
-  // {
-  //   accessorKey: 'updatedAt',
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title='Updated At' />
-  //   ),
-  //   cell: ({ row }) => {
-  //     const updatedAt = new Date(row.getValue('updatedAt'))
-  //     return (
-  //       <time dateTime={updatedAt.toISOString()} className='text-sm pl-2'>
-  //         {updatedAt.toLocaleDateString(undefined, {
-  //           year: 'numeric',
-  //           month: 'short',
-  //           day: 'numeric',
-  //         })}
-  //       </time>
-  //     )
-  //   },
-  // },
   {
     id: 'actions',
     cell: ({ row }) => <DataTableRowActions row={row} />,

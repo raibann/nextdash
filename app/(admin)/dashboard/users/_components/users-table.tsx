@@ -24,7 +24,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
-import { DataTableBulkActions } from './data-table-bulk-actions'
+import { DataTableBulkActions } from './users-table-bulk-actions'
 import { usersColumns as columns } from './users-columns'
 import { User } from '@/server/actions/user-actions'
 import { Skeleton } from '@/components/ui/skeleton'

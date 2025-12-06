@@ -1,7 +1,7 @@
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { db } from '@/db/drizzle'
-import { admin, openAPI } from 'better-auth/plugins'
+import { admin, openAPI, username } from 'better-auth/plugins'
 import { nextCookies } from 'better-auth/next-js'
 
 export const auth = betterAuth({
@@ -22,6 +22,7 @@ export const auth = betterAuth({
       defaultRole: 'user',
       adminRoles: ['admin'],
     }),
+    username(),
     nextCookies(),
     openAPI({
       disableDefaultReference: process.env.NODE_ENV !== 'development',
@@ -60,5 +61,3 @@ export const auth = betterAuth({
 })
 
 export type Session = typeof auth.$Infer.Session
-
-

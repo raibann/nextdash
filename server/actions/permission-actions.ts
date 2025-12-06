@@ -1,23 +1,23 @@
 'use server'
 
 import { db } from '@/db/drizzle'
-import { permissionTable } from '@/db/schema'
+import { permission } from '@/db/schema'
 import { throwClientError, throwError } from '@/lib/error-utils'
 import { and, desc, eq, ilike, ne, or, sql } from 'drizzle-orm'
 
-export type CreatePermission = typeof permissionTable.$inferInsert
+export type CreatePermission = typeof permission.$inferInsert
 export type UpdatePermission = CreatePermission
-export type Permission = typeof permissionTable.$inferSelect
+export type Permission = typeof permission.$inferSelect
 
 const createPermission = async (body: CreatePermission) => {
   try {
-    const existed = await db.query.permissionTable.findFirst({
-      where: eq(permissionTable.slug, body.slug),
+    const existed = await db.query.permission.findFirst({
+      where: eq(permission.slug, body.slug),
     })
     if (existed) {
       return { data: null, error: 'Permission already is existed!' }
     }
-    const data = await db.insert(permissionTable).values(body).returning()
+    const data = await db.insert(permission).values(body).returning()
     return { data: data, error: null }
   } catch (error) {
     return throwError(error)
@@ -28,10 +28,10 @@ const updatePermission = async (body: UpdatePermission) => {
     if (!body.id) return { data: null, error: 'Id is required' }
 
     // 1. Check if another permission already uses the same name
-    const existed = await db.query.permissionTable.findFirst({
+    const existed = await db.query.permission.findFirst({
       where: and(
-        eq(permissionTable.slug, body.slug),
-        ne(permissionTable.id, body.id) // ignore current permission
+        eq(permission.slug, body.slug),
+        ne(permission.id, body.id) // ignore current permission
       ),
     })
     if (existed) {
@@ -40,13 +40,13 @@ const updatePermission = async (body: UpdatePermission) => {
 
     // 2. Update permission safely
     const data = await db
-      .update(permissionTable)
+      .update(permission)
       .set({
         desc: body.desc,
         slug: body.slug,
         name: body.name,
       })
-      .where(eq(permissionTable.id, body.id))
+      .where(eq(permission.id, body.id))
       .returning() // optional: get updated data
 
     return { data: data[0], error: null }
@@ -57,7 +57,7 @@ const updatePermission = async (body: UpdatePermission) => {
 
 const deletePermission = async (id: string) => {
   try {
-    const data = await db.delete(permissionTable).where(eq(permissionTable.id, id))
+    const data = await db.delete(permission).where(eq(permission.id, id))
     return { data: data, error: null }
   } catch (error) {
     return throwError(error)
@@ -75,21 +75,21 @@ const listPermission = async ({
   try {
     const where = search
       ? or(
-          ilike(permissionTable.name, `%${search}%`),
-          ilike(permissionTable.slug, `%${search}%`)
+          ilike(permission.name, `%${search}%`),
+          ilike(permission.slug, `%${search}%`)
         )
       : undefined
-    const data = await db.query.permissionTable.findMany({
+    const data = await db.query.permission.findMany({
       where,
       limit: pageSize,
       offset: pageIndex * pageSize,
-      orderBy: [desc(permissionTable.createdAt)],
+      orderBy: [desc(permission.createdAt)],
     })
 
-    // Count total for TanStack Table pagination
+    // Count total for TanStackn pagination
     const total = await db
       .select({ count: sql<number>`count(*)` })
-      .from(permissionTable)
+      .from(permission)
       .where(where ?? sql`true`)
 
     return {

@@ -12,13 +12,15 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useUsers } from './users-provider'
 import { User } from '@/server/actions/user-actions'
+import { useUser } from '@/context/user-provider'
 
-type DataTableRowActionsProps = {
+type UsersTableRowActionsProps = {
   row: Row<User>
 }
 
-export function DataTableRowActions({ row }: DataTableRowActionsProps) {
+export function UsersTableRowActions({ row }: UsersTableRowActionsProps) {
   const { setOpen, setCurrentRow } = useUsers()
+  const { user } = useUser()
   return (
     <>
       <DropdownMenu modal={false}>
@@ -50,6 +52,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
               setOpen('delete')
             }}
             variant='destructive'
+            disabled={user?.id === row.original.id}
           >
             Delete
             <DropdownMenuShortcut>
