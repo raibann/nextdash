@@ -122,7 +122,7 @@ export function RolesMutateDrawer({
         form.reset()
       }}
     >
-      <SheetContent className='flex flex-col'>
+      <SheetContent className='flex flex-col mr-4 h-[calc(100dvh-32px)] my-auto rounded-lg'>
         <SheetHeader className='text-start'>
           <SheetTitle>{isUpdate ? 'Update Role' : 'Create Role'}</SheetTitle>
           <SheetDescription>

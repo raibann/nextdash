@@ -75,6 +75,7 @@ src/
 │  └─ globals.css
 │
 ├─ components/             # UI + form components
+├─ db/                     # database management
 ├─ server/                 # Server actions + DB logic
 ├─ lib/                    # Auth, utils, validators
 ├─ styles/                 # Tailwind + global styles

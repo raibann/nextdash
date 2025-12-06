@@ -55,7 +55,7 @@ export function ConfigDrawer() {
           {/* <Settings aria-hidden='true' /> */}
         </Button>
       </SheetTrigger>
-      <SheetContent className='flex flex-col'>
+      <SheetContent className='flex flex-col mr-4 h-[calc(100dvh-32px)] my-auto rounded-lg'>
         <SheetHeader className='pb-0 text-start'>
           <SheetTitle>Theme Settings</SheetTitle>
           <SheetDescription id='config-drawer-description'>
