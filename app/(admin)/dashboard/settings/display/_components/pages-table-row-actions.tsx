@@ -1,6 +1,6 @@
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { type Row } from '@tanstack/react-table'
-import { Trash2, Pencil } from 'lucide-react'
+import { Trash2, Pencil, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -43,6 +43,24 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           Edit
           <DropdownMenuShortcut>
             <Pencil size={16} />
+          </DropdownMenuShortcut>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => {
+            // Set currentRow with parentId but empty id to indicate create mode with parent
+            setCurrentRow({
+              ...page,
+              id: '', // Empty id indicates create mode
+              name: '',
+              url: '',
+              parentId: page.id,
+            } as Page)
+            setOpen('create')
+          }}
+        >
+          Add Child Page
+          <DropdownMenuShortcut>
+            <Plus size={16} />
           </DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

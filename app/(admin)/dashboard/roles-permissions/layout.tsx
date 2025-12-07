@@ -26,7 +26,11 @@ const topNav = [
   },
 ]
 
-const RolePermissionLayout = ({ children }: { children: React.ReactNode }) => {
+const RolesPermissionsLayout = ({
+  children,
+}: {
+  children: React.ReactNode
+}) => {
   return (
     <RoleProvider>
       <Header fixed>
@@ -44,4 +48,4 @@ const RolePermissionLayout = ({ children }: { children: React.ReactNode }) => {
   )
 }
 
-export default RolePermissionLayout
+export default RolesPermissionsLayout

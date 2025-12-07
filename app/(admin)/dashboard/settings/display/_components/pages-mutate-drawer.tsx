@@ -35,6 +35,8 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { useQuery } from '@tanstack/react-query'
 import { listPageHierarchy } from '@/server/actions/page-actions'
+import PagesUrlInputWithSuggestions from './pages-url-suggestion-input'
+import { useMemo, useEffect, useRef } from 'react'
 
 type PagesMutateDrawerProps = {
   open: boolean
@@ -45,75 +47,142 @@ type PagesMutateDrawerProps = {
 const formSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, 'Name is required'),
-  slug: z.string().min(1, 'Slug is required'),
+  url: z.string().min(1, 'Url is required'),
   icon: z.string().optional(),
-  parentId: z.string().nullable().optional(),
+  parentId: z.string().optional(),
   orderIndex: z.number().min(0),
   isActive: z.boolean(),
 })
 
 type FormSchema = z.infer<typeof formSchema>
 
+type PageWithChildren = Page & {
+  pages?: PageWithChildren[]
+}
+
+// Helper function to recursively render pages with hierarchy
+// Recursive hierarchical rendering with indentation and self-parent exclusion
+const renderPageHierarchy = (
+  pages: PageWithChildren[] = [],
+  depth: number = 0,
+  excludeId?: string
+): React.ReactElement[] => {
+  return pages
+    .filter((page) => !excludeId || page.id !== excludeId)
+    .flatMap((page) => [
+      <SelectItem key={page.id} value={page.id}>
+        <span style={{ paddingLeft: `${depth * 16}px` }}>
+          {depth > 0 ? Array(depth).fill('—').join('') + ' ' : ''}
+          {page.name}
+        </span>
+      </SelectItem>,
+      ...(page.pages
+        ? renderPageHierarchy(page.pages, depth + 1, excludeId)
+        : []),
+    ])
+}
+
 export function PagesMutateDrawer({
   open,
   onOpenChange,
   currentRow,
 }: PagesMutateDrawerProps) {
-  const isUpdate = !!currentRow
+  // isUpdate is true only if currentRow has a non-empty id
+  const isUpdate = !!(currentRow?.id && currentRow.id.trim() !== '')
 
-  const { data: pagesData } = useQuery({
-    queryKey: ['pages-hierarchy'],
-    queryFn: listPageHierarchy,
-  })
+  // Create a key that changes when currentRow changes to force form remount
+  const formKey = useMemo(
+    () => `form-${currentRow?.id || 'new'}-${currentRow?.parentId || 'none'}`,
+    [currentRow?.id, currentRow?.parentId]
+  )
 
-  type PageWithChildren = Page & {
-    pages?: PageWithChildren[]
-  }
-
-  // Helper function to recursively render pages with hierarchy
-  const renderPageHierarchy = (
-    pages: PageWithChildren[],
-    depth: number = 0,
-    excludeId?: string
-  ): React.ReactElement[] => {
-    return pages
-      .filter((page) => !excludeId || page.id !== excludeId)
-      .flatMap((page, index, array): React.ReactElement[] => {
-        const hasChildren = page.pages && page.pages.length > 0
-        const indent = '  '.repeat(depth)
-        const prefix =
-          depth > 0 ? (index === array.length - 1 ? '└─' : '├─') : ''
-
-        return [
-          <SelectItem key={page.id} value={page.id}>
-            <span className='flex items-center'>
-              <span className='text-muted-foreground font-mono text-xs'>
-                {indent}
-                {prefix}
-              </span>
-              <span>{page.name}</span>
-            </span>
-          </SelectItem>,
-          ...(hasChildren
-            ? renderPageHierarchy(page.pages!, depth + 1, excludeId)
-            : []),
-        ]
-      })
-  }
+  // Memoize default values to prevent unnecessary re-initializations
+  const defaultValues = useMemo<FormSchema>(
+    () => ({
+      id: currentRow?.id,
+      name: currentRow?.name ?? '',
+      url: currentRow?.url ?? '',
+      icon: currentRow?.icon ?? 'layout',
+      parentId: currentRow?.parentId ?? undefined,
+      orderIndex: currentRow?.orderIndex ?? 0,
+      isActive: currentRow?.isActive ?? true,
+    }),
+    [
+      currentRow?.id,
+      currentRow?.name,
+      currentRow?.url,
+      currentRow?.icon,
+      currentRow?.parentId,
+      currentRow?.orderIndex,
+      currentRow?.isActive,
+    ]
+  )
 
   const form = useForm<FormSchema>({
     mode: 'onChange',
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      id: currentRow?.id,
-      name: currentRow?.name ?? '',
-      slug: currentRow?.slug ?? '',
-      icon: currentRow?.icon ?? 'layout',
-      parentId: currentRow?.parentId ?? null,
-      orderIndex: currentRow?.orderIndex ?? 0,
-      isActive: currentRow?.isActive ?? true,
-    },
+    defaultValues,
   })
+
+  const { data: pagesData } = useQuery({
+    queryKey: ['pages-hierarchy'],
+    queryFn: listPageHierarchy,
+    enabled: open,
+  })
+
+  // Track the last form key to avoid unnecessary resets
+  const lastFormKeyRef = useRef<string>(formKey)
+  const wasOpenRef = useRef(open)
+
+  // Reset form when formKey changes (currentRow changes) or drawer opens
+  useEffect(() => {
+    if (open) {
+      if (formKey !== lastFormKeyRef.current || !wasOpenRef.current) {
+        // Use requestAnimationFrame to ensure reset happens after render
+        requestAnimationFrame(() => {
+          form.reset(defaultValues)
+          lastFormKeyRef.current = formKey
+        })
+      }
+      wasOpenRef.current = true
+    } else {
+      wasOpenRef.current = false
+    }
+  }, [open, formKey, form, defaultValues])
+
+  // Prevent form submission on Enter key press
+  const handleFormKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    if (e.key === 'Enter') {
+      const target = e.target as HTMLElement
+      // Allow Enter in textarea
+      if (target.tagName === 'TEXTAREA') {
+        return
+      }
+      // Prevent form submission on Enter key press in any input field
+      if (
+        target.tagName === 'INPUT' ||
+        target.closest('input') ||
+        target.closest('[role="combobox"]')
+      ) {
+        e.preventDefault()
+        e.stopPropagation()
+      }
+    }
+  }
+
+  // Ensure parentId is set when creating a child page
+  useEffect(() => {
+    if (open && !isUpdate && currentRow?.parentId) {
+      // When creating a child page, ensure parentId is set in the form
+      const currentParentId = form.getValues('parentId')
+      const parentIdValue = currentRow.parentId ?? undefined
+      if (currentParentId !== parentIdValue) {
+        requestAnimationFrame(() => {
+          form.setValue('parentId', parentIdValue, { shouldValidate: false })
+        })
+      }
+    }
+  }, [open, isUpdate, currentRow?.parentId, form])
 
   const onReset = () => {
     toast.success(isUpdate ? 'Update Page Success!' : 'Create Page Success!')
@@ -132,7 +201,7 @@ export function PagesMutateDrawer({
       const res = await updatePage({
         id: data.id!,
         name: data.name,
-        slug: data.slug,
+        url: data.url,
         icon: data.icon,
         parentId: data.parentId || null,
         orderIndex: data.orderIndex,
@@ -148,7 +217,7 @@ export function PagesMutateDrawer({
     } else {
       const res = await createPage({
         name: data.name,
-        slug: data.slug,
+        url: data.url,
         icon: data.icon,
         parentId: data.parentId || null,
         orderIndex: data.orderIndex,
@@ -167,28 +236,33 @@ export function PagesMutateDrawer({
   }
 
   return (
-    <Sheet
-      open={open}
-      onOpenChange={(v) => {
-        onOpenChange(v)
-        if (!v) {
-          form.reset()
-        }
-      }}
-    >
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className='flex flex-col mr-4 h-[calc(100dvh-32px)] my-auto rounded-lg'>
         <SheetHeader className='text-start'>
-          <SheetTitle>{isUpdate ? 'Update Page' : 'Create Page'}</SheetTitle>
+          <SheetTitle>
+            {isUpdate
+              ? currentRow?.parentId
+                ? 'Update Child Page'
+                : 'Update Page'
+              : currentRow?.parentId
+              ? 'Create Child Page'
+              : 'Create Page'}
+          </SheetTitle>
           <SheetDescription>
             {isUpdate
-              ? 'Update the page information below.'
+              ? currentRow?.parentId
+                ? 'Update the child page information below.'
+                : 'Update the page information below.'
+              : currentRow?.parentId
+              ? 'Create a new child page using the fields below.'
               : 'Create a new page using the fields below.'}
           </SheetDescription>
         </SheetHeader>
-
         <form
+          key={formKey}
           id='form-page'
           onSubmit={form.handleSubmit(onSubmit)}
+          onKeyDown={handleFormKeyDown}
           className='flex-1 space-y-6 overflow-y-auto px-4'
         >
           <FieldGroup>
@@ -235,21 +309,19 @@ export function PagesMutateDrawer({
               />
             </div>
 
-            {/* SLUG */}
+            {/* URL */}
             <Controller
-              name='slug'
+              name='url'
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor='page-slug'>
-                    Slug <span className='text-destructive'>*</span>
+                  <FieldLabel htmlFor='page-url'>
+                    Url <span className='text-destructive'>*</span>
                   </FieldLabel>
-                  <Input
-                    {...field}
-                    id='page-slug'
-                    placeholder='Enter page slug (e.g., dashboard)'
-                    aria-invalid={fieldState.invalid}
-                    autoComplete='off'
+                  <PagesUrlInputWithSuggestions
+                    value={field.value}
+                    onChange={field.onChange}
+                    fieldState={fieldState}
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -262,29 +334,38 @@ export function PagesMutateDrawer({
             <Controller
               name='parentId'
               control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor='page-parent'>Parent Page</FieldLabel>
-                  <Select
-                    value={field.value || 'none'}
-                    onValueChange={(value) =>
-                      field.onChange(value === 'none' ? null : value)
-                    }
-                  >
-                    <SelectTrigger id='page-parent'>
-                      <SelectValue placeholder='Select parent page' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value='none'>None (Top Level)</SelectItem>
-                      {pagesData?.data &&
-                        renderPageHierarchy(pagesData.data, 0, currentRow?.id)}
-                    </SelectContent>
-                  </Select>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
+              render={({ field, fieldState }) => {
+                // Use field.value as the source of truth, convert null/undefined to 'none' for Select
+                const selectValue = field.value ?? 'none'
+                // Exclude the current page's ID from parent options (to prevent self-parenting)
+                // Only exclude if we're in update mode (currentRow has a valid id)
+                const excludeId =
+                  isUpdate && currentRow?.id ? currentRow.id : undefined
+
+                return (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor='page-parent'>Parent Page</FieldLabel>
+                    <Select
+                      value={selectValue}
+                      onValueChange={(value) =>
+                        field.onChange(value === 'none' ? undefined : value)
+                      }
+                    >
+                      <SelectTrigger id='page-parent'>
+                        <SelectValue placeholder='Select parent page' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value='none'>None (Top Level)</SelectItem>
+                        {pagesData?.data &&
+                          renderPageHierarchy(pagesData.data, 0, excludeId)}
+                      </SelectContent>
+                    </Select>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )
+              }}
             />
 
             {/* ORDER INDEX */}

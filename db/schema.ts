@@ -200,13 +200,15 @@ export const page = pgTable('page', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => createId()),
-  name: varchar('name', { length: 100 }).notNull(),
-  slug: varchar('slug', { length: 150 }).notNull().unique(), // e.g. "users"
-  icon: varchar('icon', { length: 50 }), // optional for sidebar
+  name: varchar('name', { length: 100 }).notNull(), // title for sidebar
+  icon: varchar('icon', { length: 50 }), // optional for sidebar (icon name)
+  url: text('url'), // optional URL for direct links (NavLink), null for collapsible items
+  badge: varchar('badge', { length: 50 }), // optional badge text
+  groupTitle: varchar('group_title', { length: 100 }), // navGroup title this page belongs to
   parentId: text('parent_id').references((): AnyPgColumn => page.id, {
     onDelete: 'set null',
-  }),
-  orderIndex: integer('order_index').default(0).notNull(),
+  }), // for nested items (NavCollapsible with children)
+  orderIndex: integer('order_index').default(0).notNull(), // order within group/parent
   isActive: boolean('is_active').default(true).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')

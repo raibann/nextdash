@@ -111,10 +111,10 @@ const PagesTable = ({
     onColumnVisibilityChange: setColumnVisibility,
     globalFilterFn: (row, _columnId, filterValue) => {
       const name = String(row.getValue('name')).toLowerCase()
-      const slug = String(row.getValue('slug')).toLowerCase()
+      const url = String(row.getValue('url') || '').toLowerCase()
       const searchValue = String(filterValue).toLowerCase()
 
-      return name.includes(searchValue) || slug.includes(searchValue)
+      return name.includes(searchValue) || url.includes(searchValue)
     },
     getPaginationRowModel: getPaginationRowModel(),
     getCoreRowModel: getCoreRowModel(),
@@ -136,8 +136,9 @@ const PagesTable = ({
       const currentTable = tableRef.current
       if (!currentTable) return
 
-      // Traverse data structure and build row IDs (TanStack uses dot-separated indices for nested rows)
-      const buildRowIds = (
+      // Recursively traverse data structure to find all expandable items
+      // TanStack Table uses dot-separated indices for nested row IDs
+      const buildExpandableRowIds = (
         items: PageWithChildren[],
         parentPath: string = ''
       ): string[] => {
@@ -147,14 +148,14 @@ const PagesTable = ({
           if (item.pages && item.pages.length > 0) {
             ids.push(rowId)
             // Recursively get nested IDs
-            const nestedIds = buildRowIds(item.pages, rowId)
+            const nestedIds = buildExpandableRowIds(item.pages, rowId)
             ids.push(...nestedIds)
           }
         })
         return ids
       }
 
-      const allExpandableIds = buildRowIds(data)
+      const allExpandableIds = buildExpandableRowIds(data)
 
       if (allExpandableIds.length === 0) return
 
@@ -261,8 +262,8 @@ const PagesTable = ({
                       ))}
                   </TableRow>
                 ))
-            ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+            ) : table.getExpandedRowModel().rows?.length ? (
+              table.getExpandedRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}

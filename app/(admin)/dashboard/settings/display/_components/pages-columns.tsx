@@ -69,42 +69,30 @@ export const pagesColumns: ColumnDef<PageWithChildren>[] = [
       const hasChildren = row.original.pages && row.original.pages.length > 0
       const isExpanded = row.getIsExpanded()
 
-      if (!hasChildren) {
-        return (
-          <div
-            className='flex items-center space-x-2'
-            style={{ paddingLeft: `${indent}px` }}
-          >
-            <span className='font-medium'>{page.name}</span>
-          </div>
-        )
-      }
-
       return (
         <div
           className='flex items-center space-x-2'
           style={{ paddingLeft: `${indent}px` }}
         >
-          <Button
-            variant='ghost'
-            size='sm'
-            className='h-6 w-6 p-0'
-            onClick={() => row.toggleExpanded()}
-          >
-            {isExpanded ? (
-              <ChevronDown className='h-4 w-4 text-muted-foreground' />
-            ) : (
-              <ChevronRight className='h-4 w-4 text-muted-foreground' />
-            )}
-            <span className='sr-only'>Toggle expanded</span>
-          </Button>
+          {hasChildren && (
+            <Button
+              variant='ghost'
+              size='sm'
+              className='h-6 w-6 p-0'
+              onClick={() => row.toggleExpanded()}
+            >
+              {isExpanded ? (
+                <ChevronDown className='h-4 w-4 text-muted-foreground' />
+              ) : (
+                <ChevronRight className='h-4 w-4 text-muted-foreground' />
+              )}
+              <span className='sr-only'>Toggle expanded</span>
+            </Button>
+          )}
           {page.icon ? (
-            <DynamicIcon
-              name={page.icon as IconName}
-              className='h-4 w-4 text-muted-foreground'
-            />
+            <DynamicIcon name={page.icon as IconName} className='size-4' />
           ) : (
-            <div className='w-4 h-4 rounded border border-dashed border-muted-foreground/50' />
+            <div className='size-4 rounded border border-dashed border-muted-foreground/50' />
           )}
           <span className='font-medium'>{page.name}</span>
         </div>
@@ -113,13 +101,13 @@ export const pagesColumns: ColumnDef<PageWithChildren>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: 'slug',
+    accessorKey: 'url',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Slug' />
+      <DataTableColumnHeader column={column} title='Url' />
     ),
     meta: { className: 'ps-1', tdClassName: 'ps-4' },
     cell: ({ row }) => {
-      return <CopyText text={row.getValue('slug')} />
+      return <CopyText text={row.getValue('url') || ''} />
     },
     enableSorting: false,
   },

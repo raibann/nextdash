@@ -7,7 +7,6 @@ import { useMemo, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useTableUrlState } from '@/hooks/use-table-url-state'
 import { PagesPrimaryButtons } from './_components/pages-primary-buttons'
-import { PageProvider } from './_components/pages-provider'
 import { PagesDialogs } from './_components/pages-dialogs'
 
 export default function SettingsDisplay() {
@@ -114,7 +113,7 @@ export default function SettingsDisplay() {
   }, [pageCount, ensurePageInRange])
 
   return (
-    <PageProvider>
+    <>
       <Main className='flex flex-1 flex-col gap-4 sm:gap-6'>
         <div className='flex flex-wrap items-end justify-between gap-2'>
           <div>
@@ -142,6 +141,6 @@ export default function SettingsDisplay() {
         />
       </Main>
       <PagesDialogs />
-    </PageProvider>
+    </>
   )
 }

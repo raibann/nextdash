@@ -14,11 +14,10 @@ export function PagesDialogs() {
   const handleConfirmDelete = (id: string) => {
     startTransition(async () => {
       const res = await deletePage(id)
-      if (res?.error !== null) {
-        toast.error(res?.error)
-        return
+      if (res.error !== null) {
+        toast.error(res.error)
       }
-      if (res?.data) {
+      if (res.data) {
         toast.success('Deleted Page!')
         setOpen(null)
         getQueryClient().invalidateQueries({
@@ -35,9 +34,7 @@ export function PagesDialogs() {
       <PagesMutateDrawer
         key='page-create'
         open={open === 'create'}
-        onOpenChange={(v) => {
-          setOpen(v ? 'create' : null)
-        }}
+        onOpenChange={() => setOpen('create')}
       />
 
       {currentRow && (
@@ -45,13 +42,11 @@ export function PagesDialogs() {
           <PagesMutateDrawer
             key={`page-update-${currentRow.id}`}
             open={open === 'update'}
-            onOpenChange={(v) => {
-              setOpen(v ? 'update' : null)
-              if (!v) {
-                setTimeout(() => {
-                  setCurrentRow(null)
-                }, 500)
-              }
+            onOpenChange={() => {
+              setOpen('update')
+              setTimeout(() => {
+                setCurrentRow(null)
+              }, 500)
             }}
             currentRow={currentRow}
           />
@@ -60,13 +55,11 @@ export function PagesDialogs() {
             key='page-delete'
             destructive
             open={open === 'delete'}
-            onOpenChange={(v) => {
-              setOpen(v ? 'delete' : null)
-              if (!v) {
-                setTimeout(() => {
-                  setCurrentRow(null)
-                }, 500)
-              }
+            onOpenChange={() => {
+              setOpen('delete')
+              setTimeout(() => {
+                setCurrentRow(null)
+              }, 500)
             }}
             isLoading={isPending}
             handleConfirm={() => handleConfirmDelete(currentRow.id)}
