@@ -6,7 +6,6 @@ import {
   role,
   rolePermission,
   task,
-  page,
   taskProperty,
   permission,
 } from './schema'
@@ -48,18 +47,6 @@ export const rolePermissionOneToOneRelations = relations(
     }),
   })
 )
-
-// PAGE RELATIONS
-export const pageRelations = relations(page, ({ one, many }) => ({
-  page: one(page, {
-    fields: [page.parentId],
-    references: [page.id],
-    relationName: 'page_parentId_page_id',
-  }),
-  pages: many(page, {
-    relationName: 'page_parentId_page_id',
-  }),
-}))
 
 // TASK RELATIONS
 export const taskRelations = relations(task, ({ one, many }) => ({

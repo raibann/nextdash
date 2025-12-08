@@ -1,6 +1,8 @@
-import { Spinner } from '@/components/ui/spinner'
+'use client'
+import React from 'react'
+import { Spinner } from './ui/spinner'
 
-const RootLoading = () => {
+const Loading = () => {
   return (
     <div className='flex h-full w-full items-center justify-center rounded-lg'>
       <Spinner className='size-6' />
@@ -8,4 +10,4 @@ const RootLoading = () => {
   )
 }
 
-export default RootLoading
+export default Loading

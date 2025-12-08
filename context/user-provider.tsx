@@ -5,6 +5,7 @@ import type { Session } from '@/lib/auth'
 type UserContextType = {
   session: Session | null
   user: Session['user'] | null
+  permissions: string[]
 }
 
 const UserContext = createContext<UserContextType | null>(null)
@@ -12,12 +13,18 @@ const UserContext = createContext<UserContextType | null>(null)
 type UserProviderProps = {
   children: React.ReactNode
   session: Session | null
+  permissions: string[]
 }
 
-export function UserProvider({ children, session }: UserProviderProps) {
+export function UserProvider({
+  children,
+  session,
+  permissions,
+}: UserProviderProps) {
   const contextValue: UserContextType = {
     session,
     user: session?.user || null,
+    permissions,
   }
 
   return (

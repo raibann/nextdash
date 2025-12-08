@@ -8,7 +8,7 @@ import {
   primaryKey,
 } from 'drizzle-orm/pg-core'
 import { createId } from '@paralleldrive/cuid2'
-import { varchar, integer, AnyPgColumn } from 'drizzle-orm/pg-core'
+import { varchar, AnyPgColumn } from 'drizzle-orm/pg-core'
 
 // USER TABLE
 export const user = pgTable('user', {
@@ -194,24 +194,3 @@ export const taskRelations = relations(task, ({ one }) => ({
     references: [task.id],
   }),
 }))
-
-// PAGE TABLE
-export const page = pgTable('page', {
-  id: text('id')
-    .primaryKey()
-    .$defaultFn(() => createId()),
-  name: varchar('name', { length: 100 }).notNull(), // title for sidebar
-  icon: varchar('icon', { length: 50 }), // optional for sidebar (icon name)
-  url: text('url'), // optional URL for direct links (NavLink), null for collapsible items
-  badge: varchar('badge', { length: 50 }), // optional badge text
-  groupTitle: varchar('group_title', { length: 100 }), // navGroup title this page belongs to
-  parentId: text('parent_id').references((): AnyPgColumn => page.id, {
-    onDelete: 'set null',
-  }), // for nested items (NavCollapsible with children)
-  orderIndex: integer('order_index').default(0).notNull(), // order within group/parent
-  isActive: boolean('is_active').default(true).notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at')
-    .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
-})

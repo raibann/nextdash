@@ -6,12 +6,15 @@ import RolesTable from './_components/roles-table'
 import { Main } from '@/components/layout/main'
 import { listRole, Role } from '@/server/actions/role-actions'
 import { useMemo, useEffect } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams, useRouter, redirect } from 'next/navigation'
 import { useTableUrlState } from '@/hooks/use-table-url-state'
+import { useUser } from '@/context/user-provider'
+import { hasPermission } from '@/lib/utils'
 
 const Roles = () => {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const { permissions } = useUser()
 
   // Parse search params into a record
   const search = useMemo(
@@ -110,6 +113,17 @@ const Roles = () => {
       ensurePageInRange(pageCount)
     }
   }, [pageCount, ensurePageInRange])
+
+  /**
+   * handle permission before rendering the page
+   *
+   * - '*' means all permissions
+   * - this project for anonymous user, so we need to check if the user has all permissions
+   */
+
+  if (!hasPermission(permissions, ['*', 'read.role'])) {
+    return redirect('/forbidden')
+  }
 
   return (
     <>

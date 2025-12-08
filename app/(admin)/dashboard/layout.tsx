@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { auth } from '../../../lib/auth'
 import { headers } from 'next/headers'
+import { getUserPermissions } from '@/server/actions/permission-actions'
 
 export const metadata: Metadata = {
   title: {
@@ -21,7 +22,17 @@ const DashboardLayout = async ({ children }: PropsWithChildren) => {
     redirect('/sign-in')
   }
 
-  return <AuthenticatedLayout session={authed}>{children}</AuthenticatedLayout>
+  const permissions = await getUserPermissions(authed.user.role!)
+
+  if (permissions?.error || !permissions?.data) {
+    redirect('/sign-in')
+  }
+
+  return (
+    <AuthenticatedLayout session={authed} permissions={permissions.data}>
+      {children}
+    </AuthenticatedLayout>
+  )
 }
 
 export default DashboardLayout

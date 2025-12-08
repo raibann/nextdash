@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '@/db/drizzle'
-import { permission } from '@/db/schema'
+import { permission, role } from '@/db/schema'
 import { throwClientError, throwError } from '@/lib/error-utils'
 import { and, desc, eq, ilike, ne, or, sql } from 'drizzle-orm'
 
@@ -99,8 +99,42 @@ const listPermission = async ({
       pageSize: pageSize,
     }
   } catch (error) {
-    throwClientError(error)
+    return throwClientError(error)
   }
 }
 
-export { createPermission, updatePermission, deletePermission, listPermission }
+const getUserPermissions = async (slug: string) => {
+  try {
+    const roleHasPermission = await db.query.role.findFirst({
+      where: eq(role.slug, slug),
+      with: {
+        rolePermissions: {
+          with: {
+            permission: {
+              columns: {
+                slug: true,
+              },
+            },
+          },
+        },
+      },
+    })
+    if (!roleHasPermission) {
+      return { data: null, error: 'Role not found' }
+    }
+    return {
+      data: roleHasPermission.rolePermissions.map((rp) => rp.permission.slug),
+      error: null,
+    }
+  } catch (error) {
+    return throwClientError(error)
+  }
+}
+
+export {
+  createPermission,
+  updatePermission,
+  deletePermission,
+  listPermission,
+  getUserPermissions,
+}

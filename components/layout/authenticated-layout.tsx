@@ -12,21 +12,24 @@ import type { Session } from '@/lib/auth'
 
 type AuthenticatedLayoutProps = PropsWithChildren & {
   session: Session | null
+  permissions: string[]
 }
 
-export function AuthenticatedLayout({
+export async function AuthenticatedLayout({
   children,
   session,
+  permissions,
 }: AuthenticatedLayoutProps) {
   const defaultOpen = getCookie('sidebar_state') !== 'false'
+
   return (
     <ClientOnly>
-      <UserProvider session={session}>
+      <UserProvider session={session} permissions={permissions}>
         <SearchProvider>
           <LayoutProvider>
             <SidebarProvider defaultOpen={defaultOpen}>
               <SkipToMain />
-              <AppSidebar session={session} />
+              <AppSidebar session={session} permissions={permissions} />
               <SidebarInset
                 className={cn(
                   // Set content container, so we can use container queries

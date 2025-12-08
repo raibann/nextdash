@@ -8,15 +8,27 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar'
 // import { AppTitle } from './app-title'
-import { sidebarData } from './data/sidebar-data'
 import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
 // import { TeamSwitcher } from './team-switcher'
 import CompanyHeader from './company-header'
 import { Session } from '@/lib/auth'
+import { sidebarData } from './data/sidebar-data'
+import { hasPermission } from '@/lib/utils'
 
-export function AppSidebar({ session }: { session: Session | null }) {
+interface AppSidebarProps {
+  session: Session | null
+  permissions: string[]
+}
+
+export function AppSidebar({ session, permissions }: AppSidebarProps) {
   const { collapsible, variant } = useLayout()
+
+  const filteredNavGroups = sidebarData.navGroups.filter((group) =>
+    group.items.some((item) =>
+      hasPermission(permissions, item.permissions || ['*'])
+    )
+  )
 
   return (
     <Sidebar collapsible={collapsible} variant={variant}>
@@ -29,7 +41,7 @@ export function AppSidebar({ session }: { session: Session | null }) {
         {/* <AppTitle /> */}
       </SidebarHeader>
       <SidebarContent>
-        {sidebarData.navGroups.map((props) => (
+        {filteredNavGroups.map((props) => (
           <NavGroup key={props.title} {...props} />
         ))}
       </SidebarContent>

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DataTableFacetedFilter } from './faceted-filter'
 import { DataTableViewOptions } from './view-options'
+import { RefreshCcwIcon } from 'lucide-react'
 
 type DataTableToolbarProps<TData> = {
   table: Table<TData>
@@ -19,6 +20,7 @@ type DataTableToolbarProps<TData> = {
       icon?: React.ComponentType<{ className?: string }>
     }[]
   }[]
+  refresh?: () => void
 }
 
 export function DataTableToolbar<TData>({
@@ -26,6 +28,7 @@ export function DataTableToolbar<TData>({
   searchPlaceholder = 'Filter...',
   searchKey,
   filters = [],
+  refresh,
 }: DataTableToolbarProps<TData>) {
   const isFiltered =
     table.getState().columnFilters.length > 0 || table.getState().globalFilter
@@ -80,6 +83,16 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
+      {refresh && (
+        <Button
+          variant='outline'
+          size={'icon'}
+          className='mr-2'
+          onClick={refresh}
+        >
+          <RefreshCcwIcon className='size-4' />
+        </Button>
+      )}
       <DataTableViewOptions table={table} />
     </div>
   )

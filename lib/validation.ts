@@ -1,4 +1,4 @@
-import { NavItem } from '@/components/layout/types'
+import { NavItem } from '@/components/layout/data/types'
 import { ReadonlyURLSearchParams } from 'next/navigation'
 
 export function checkIsActive(href: string, item: NavItem, mainNav = false) {

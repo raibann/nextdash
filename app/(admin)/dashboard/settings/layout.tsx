@@ -1,5 +1,5 @@
 'use client'
-import { Monitor, Bell, Palette, Wrench, UserCog } from 'lucide-react'
+import { Bell, Palette, Wrench, UserCog } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
@@ -8,7 +8,7 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { SidebarNav } from './_components/sidebar-nav'
-import { ROUTE_PATHS } from '@/lib/route-path'
+import { ROUTE_PATHS } from '@/components/layout/data/sidebar-data'
 
 const sidebarNavItems = [
   {
@@ -30,11 +30,6 @@ const sidebarNavItems = [
     title: 'Notifications',
     href: ROUTE_PATHS.admin.dashboard.settings.notifications,
     icon: <Bell size={18} />,
-  },
-  {
-    title: 'Display',
-    href: ROUTE_PATHS.admin.dashboard.settings.display,
-    icon: <Monitor size={18} />,
   },
 ]
 

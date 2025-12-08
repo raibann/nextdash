@@ -71,6 +71,13 @@
       "when": 1765097089068,
       "tag": "20251207084449_add_page_field_relate_to_sidebar",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1765177292355,
+      "tag": "20251208070132_remove_page",
+      "breakpoints": true
     }
   ]
 }

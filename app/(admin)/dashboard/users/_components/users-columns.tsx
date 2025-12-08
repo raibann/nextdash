@@ -8,6 +8,7 @@ import { LongText } from '@/components/long-text'
 import { UsersTableRowActions } from './users-table-row-actions'
 import { User } from '@/server/actions/user-actions'
 import { DynamicIcon, IconName } from 'lucide-react/dynamic'
+import CopyText from '@/components/copy-text'
 
 export const usersColumns: ColumnDef<User>[] = [
   {
@@ -69,7 +70,7 @@ export const usersColumns: ColumnDef<User>[] = [
       <DataTableColumnHeader column={column} title='Email' />
     ),
     cell: ({ row }) => (
-      <div className='w-fit ps-2 text-nowrap'>{row.getValue('email')}</div>
+      <CopyText text={row.getValue('email')} className='w-50 ' />
     ),
   },
   // {

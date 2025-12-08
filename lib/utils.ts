@@ -66,3 +66,16 @@ export function shortName(name: string): string {
     return name.charAt(0)
   }
 }
+
+export function hasPermission(
+  permissions: string[],
+  permissionOrList: string | string[]
+): boolean {
+  if (Array.isArray(permissionOrList)) {
+    // If any of the permissions in permissionOrList are present in permissions (or permissions has '*'), allow
+    return permissions.some((p) => ['*', ...permissionOrList].includes(p))
+  } else {
+    // Single permission string
+    return permissions.some((p) => p === '*' || p === permissionOrList)
+  }
+}
