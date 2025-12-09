@@ -1,7 +1,7 @@
 import { db } from '@/db/drizzle'
-import { user, role } from '@/db/schema'
+import { user, role, permission, rolePermission } from '@/db/schema'
 import { auth } from '@/lib/auth'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 
 export async function createAdmin() {
   try {
@@ -36,6 +36,37 @@ export async function createAdmin() {
         .returning()
       adminRole = newAdminRole
     }
+
+    // Ensure 'all' permission exists and is assigned to admin
+    let allPermission = await db.query.permission.findFirst({
+      where: eq(permission.slug, 'all'),
+    })
+    if (!allPermission) {
+      const [createdPermission] = await db
+        .insert(permission)
+        .values({
+          slug: 'all',
+          name: 'Access All',
+        })
+        .returning()
+      allPermission = createdPermission
+    }
+    // Assign 'all' permission to admin role if not already assigned
+    if (allPermission) {
+      const existingAssignment = await db.query.rolePermission.findFirst({
+        where: and(
+          eq(rolePermission.roleId, adminRole.id),
+          eq(rolePermission.permissionId, allPermission.id)
+        ),
+      })
+      if (!existingAssignment) {
+        await db.insert(rolePermission).values({
+          roleId: adminRole.id,
+          permissionId: allPermission.id,
+        })
+      }
+    }
+    // ---- End: Permission setup ----
 
     const existUser = await db.query.user.findFirst({
       where: eq(user.email, email),

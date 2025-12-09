@@ -121,7 +121,7 @@ const Roles = () => {
    * - this project for anonymous user, so we need to check if the user has all permissions
    */
 
-  if (!hasPermission(permissions, ['*', 'read.role'])) {
+  if (!hasPermission(permissions, ['all', 'read.role'])) {
     return redirect('/forbidden')
   }
 
