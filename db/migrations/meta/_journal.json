@@ -78,6 +78,13 @@
       "when": 1765177292355,
       "tag": "20251208070132_remove_page",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1766308523925,
+      "tag": "20251221091523_add_config_table",
+      "breakpoints": true
     }
   ]
 }

@@ -6,6 +6,8 @@ import {
   boolean,
   index,
   primaryKey,
+  jsonb,
+  integer,
 } from 'drizzle-orm/pg-core'
 import { createId } from '@paralleldrive/cuid2'
 import { varchar, AnyPgColumn } from 'drizzle-orm/pg-core'
@@ -194,3 +196,18 @@ export const taskRelations = relations(task, ({ one }) => ({
     references: [task.id],
   }),
 }))
+
+export const config = pgTable('config', {
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  key: varchar('key', { length: 100 }).notNull(),
+  value: jsonb('value')
+    .$type<{
+      type: 'text' | 'number' | 'boolean' | 'array' | 'object'
+      value: string | number | boolean | string[] | object
+    }>()
+    .notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at')
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+})
